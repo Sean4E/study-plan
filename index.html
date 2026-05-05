@@ -1131,19 +1131,69 @@ function defaultAvailability() {
 }
 
 function createSampleState() {
-  // Sample data based on the Leaving Cert chemistry example
+  // Realistic Leaving Cert sample drawn from the user's StudyPlan_METRICS workbook.
+  // Six subjects, multi-paper exams for English / Irish / Maths to demonstrate
+  // the multi-exam scheduling. Exam dates anchor to "today" so the demo always
+  // shows useful runway regardless of when Sample is loaded.
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const examStart = addDays(today, 14);
-  while (examStart.getDay() !== 1) examStart.setDate(examStart.getDate() + 1); // next Monday
+  const examDay = (offset) => isoDate(addDays(today, offset));
 
+  const englishId   = uid();
+  const irishId     = uid();
+  const mathsId     = uid();
+  const spanishId   = uid();
   const chemistryId = uid();
+  const peId        = uid();
+
   return {
     subjects: [
       {
-        id: chemistryId,
-        name: 'Chemistry',
-        color: SUBJECT_COLORS[0],
+        id: englishId, name: 'English', color: SUBJECT_COLORS[0],
+        topics: [
+          { id: uid(), name: 'Unseen poetry', workload: 3, grade: 1 },
+          { id: uid(), name: 'Studied poetry (Paula Meehan & Derek Mahon)', workload: 3, grade: 1 },
+          { id: uid(), name: 'Novel (Small Things Like These)', workload: 3, grade: 1 }
+        ]
+      },
+      {
+        id: irishId, name: 'Irish', color: SUBJECT_COLORS[1],
+        topics: [
+          { id: uid(), name: 'Oral', workload: 3, grade: 1 },
+          { id: uid(), name: 'Listening', workload: 3, grade: 1 },
+          { id: uid(), name: 'Poetry (3 poems)', workload: 3, grade: 1 },
+          { id: uid(), name: 'Short story (3 studied)', workload: 3, grade: 1 },
+          { id: uid(), name: 'Novel piece', workload: 3, grade: 1 }
+        ]
+      },
+      {
+        id: mathsId, name: 'Maths', color: SUBJECT_COLORS[2],
+        topics: [
+          { id: uid(), name: 'Algebra', workload: 3, grade: 4 },
+          { id: uid(), name: 'Quadratic & Cubic Equations', workload: 2, grade: 6 },
+          { id: uid(), name: 'Simultaneous Equations', workload: 1, grade: 6 },
+          { id: uid(), name: 'Inequalities', workload: 2, grade: 5 },
+          { id: uid(), name: 'Indices', workload: 2, grade: 3 },
+          { id: uid(), name: 'Logs', workload: 2, grade: 3 },
+          { id: uid(), name: 'Trigonometry', workload: 3, grade: 5 },
+          { id: uid(), name: 'The Line', workload: 3, grade: 2 },
+          { id: uid(), name: 'The Circle', workload: 3, grade: 2 },
+          { id: uid(), name: 'Functions', workload: 3, grade: 1 }
+        ]
+      },
+      {
+        id: spanishId, name: 'Spanish', color: SUBJECT_COLORS[3],
+        topics: [
+          { id: uid(), name: 'Oral', workload: 3, grade: 1 },
+          { id: uid(), name: 'Listening', workload: 3, grade: 1 },
+          { id: uid(), name: 'Dialogue piece', workload: 3, grade: 1 },
+          { id: uid(), name: 'Reading comprehension', workload: 3, grade: 1 },
+          { id: uid(), name: 'Opinion piece', workload: 3, grade: 1 },
+          { id: uid(), name: 'Diary entry', workload: 3, grade: 1 }
+        ]
+      },
+      {
+        id: chemistryId, name: 'Chemistry', color: SUBJECT_COLORS[4],
         topics: [
           { id: uid(), name: 'Periodic table', workload: 1, grade: 8 },
           { id: uid(), name: 'Atomic structure', workload: 2, grade: 7 },
@@ -1157,10 +1207,36 @@ function createSampleState() {
           { id: uid(), name: 'Stoichiometry', workload: 2, grade: 5 },
           { id: uid(), name: 'Environmental chemistry', workload: 1, grade: 7 }
         ]
+      },
+      {
+        id: peId, name: 'PE', color: SUBJECT_COLORS[5],
+        topics: [
+          { id: uid(), name: '1A Skilled Performance & Acquisition of Skill', workload: 1, grade: 9 },
+          { id: uid(), name: '1B Analysing Skill and Technique', workload: 1, grade: 9 },
+          { id: uid(), name: '2A Physical Demands of Performance', workload: 1, grade: 9 },
+          { id: uid(), name: '2B Principles of Training', workload: 1, grade: 9 },
+          { id: uid(), name: '2C Psychological Preparation for Performance', workload: 1, grade: 9 },
+          { id: uid(), name: '2D Diet and Nutrition', workload: 1, grade: 9 },
+          { id: uid(), name: '3A Analysing Performance in Sport', workload: 1, grade: 9 },
+          { id: uid(), name: '3B Safe Practice in Sport', workload: 1, grade: 9 },
+          { id: uid(), name: '3C The Role of Coach and Official', workload: 1, grade: 9 },
+          { id: uid(), name: '5A Physical Activity Participation', workload: 1, grade: 9 },
+          { id: uid(), name: '5B Promoting Physical Activity & Pathways to Excellence', workload: 1, grade: 9 },
+          { id: uid(), name: '6 Ethics and Fair Play', workload: 1, grade: 9 },
+          { id: uid(), name: '10 Business and Enterprise in Physical Activity and Sport', workload: 1, grade: 9 }
+        ]
       }
     ],
     exams: [
-      { id: uid(), subjectId: chemistryId, date: isoDate(examStart), time: '09:00', duration: 120 }
+      { id: uid(), subjectId: englishId,   date: examDay(28), time: '09:30', duration: 170 },
+      { id: uid(), subjectId: englishId,   date: examDay(29), time: '09:30', duration: 200 },
+      { id: uid(), subjectId: irishId,     date: examDay(31), time: '09:30', duration: 170 },
+      { id: uid(), subjectId: irishId,     date: examDay(32), time: '09:30', duration: 195 },
+      { id: uid(), subjectId: mathsId,     date: examDay(34), time: '09:30', duration: 150 },
+      { id: uid(), subjectId: mathsId,     date: examDay(35), time: '14:00', duration: 150 },
+      { id: uid(), subjectId: spanishId,   date: examDay(37), time: '09:30', duration: 150 },
+      { id: uid(), subjectId: chemistryId, date: examDay(40), time: '09:30', duration: 180 },
+      { id: uid(), subjectId: peId,        date: examDay(42), time: '14:00', duration: 150 }
     ],
     weeklyAvail: {
       mon: { studyStart: '16:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '20:00', end: '21:00', label: 'Training' }] },
@@ -1168,8 +1244,8 @@ function createSampleState() {
       wed: { studyStart: '16:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '19:00', end: '21:00', label: 'Training' }] },
       thu: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
       fri: { studyStart: '13:30', studyEnd: '22:00', blocked: [{ id: uid(), start: '18:00', end: '20:00', label: 'Training' }] },
-      sat: { studyStart: '15:00', studyEnd: '22:00', blocked: [] },
-      sun: { studyStart: '15:00', studyEnd: '22:00', blocked: [] }
+      sat: { studyStart: '09:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '09:00', end: '15:00', label: 'Work' }] },
+      sun: { studyStart: '09:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '09:00', end: '15:00', label: 'Work' }] }
     },
     completed: {},
     generatedSessions: [],
