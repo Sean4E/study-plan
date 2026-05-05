@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
 :root {
+  color-scheme: dark;
   --bg: #0a0e1a;
   --bg-2: #0f1424;
   --surface: rgba(255, 255, 255, 0.03);
@@ -133,8 +134,8 @@ button:active { transform: scale(0.98); }
 }
 
 .btn-icon {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -847,6 +848,31 @@ button:active { transform: scale(0.98); }
   margin-top: 8px;
 }
 
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--red);
+  padding: 12px 18px;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  max-width: calc(100vw - 32px);
+  animation: toastIn 0.2s ease-out;
+}
+.toast.success { border-left-color: var(--green); }
+.toast.info { border-left-color: var(--cyan); }
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 /* Print styles */
 @media print {
   body {
@@ -1164,9 +1190,31 @@ function loadState() {
   } catch (e) { return null; }
 }
 
+let toastTimer = null;
+let saveErrorNotified = false;
+function showToast(message, type = 'error', duration = 4500) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  t.textContent = message;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), duration);
+}
+
 function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch (e) { /* sandboxed; in-memory only */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    saveErrorNotified = false;
+  } catch (e) {
+    if (saveErrorNotified) return;
+    saveErrorNotified = true;
+    const reason = e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''))
+      ? 'storage is full. Export your plan, then clear data to free space.'
+      : 'browser storage is unavailable (private mode?). Export to keep your plan safe.';
+    showToast('Could not save: ' + reason, 'error', 7000);
+  }
 }
 
 // ============================================================
@@ -1493,7 +1541,12 @@ function addExam() {
 
 function updateExam(id, field, value) {
   const e = state.exams.find(e => e.id === id);
-  if (e) { e[field] = value; saveState(); renderExams(); }
+  if (!e) return;
+  e[field] = value;
+  saveState();
+  // Only re-render when the change affects the visible row order/label;
+  // typing in time/duration shouldn't yank focus away.
+  if (field === 'date' || field === 'subjectId') renderExams();
 }
 
 function deleteExam(id) {
@@ -1526,13 +1579,20 @@ function generateSchedule() {
   const sortedExams = [...validExams].sort((a, b) => a.date.localeCompare(b.date));
   const lastExamDate = new Date(sortedExams[sortedExams.length - 1].date + 'T23:59:59');
 
-  // Build topic queue: one entry per topic, with exam metadata
+  // Build topic queue: one entry per topic, with exam metadata.
+  // For subjects with multiple exams (e.g. Paper 1 + Paper 2), use the
+  // earliest upcoming exam as the deadline — every topic must be ready
+  // before any exam for that subject.
   const topicQueue = [];
   state.subjects.forEach(subj => {
-    const exam = validExams.find(e => e.subjectId === subj.id);
-    if (!exam) return;
-    const examDateTime = new Date(`${exam.date}T${exam.time}`);
-    if (examDateTime < today) return; // exam already passed
+    const upcoming = validExams
+      .filter(e => e.subjectId === subj.id)
+      .map(e => ({ exam: e, dt: new Date(`${e.date}T${e.time}`) }))
+      .filter(x => x.dt >= today)
+      .sort((a, b) => a.dt - b.dt);
+    if (upcoming.length === 0) return;
+    const exam = upcoming[0].exam;
+    const examDateTime = upcoming[0].dt;
     subj.topics.forEach(t => {
       if (!t.name.trim()) return;
       const minsNeeded = Math.ceil(topicHoursNeeded(t) * 60);
@@ -1816,8 +1876,10 @@ function toggleComplete(id) {
   if (state.completed[id]) delete state.completed[id];
   else state.completed[id] = true;
   saveState();
-  // Update progress stats without full re-render
+  // Preserve scroll position while we re-render the list
+  const scroll = window.scrollY;
   renderPlan();
+  window.scrollTo({ top: scroll, behavior: 'instant' });
 }
 
 function clearCompleted() {
