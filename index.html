@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0e1a" />
+<title>Study Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg-2: #0f1424;
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #e8ecf3;
+  --text-muted: #8b93a7;
+  --text-dim: #5a6275;
+  --cyan: #06d4f7;
+  --cyan-soft: #67e8f9;
+  --cyan-dim: rgba(6, 212, 247, 0.14);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251, 191, 36, 0.14);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167, 139, 250, 0.14);
+  --green: #34d399;
+  --green-dim: rgba(52, 211, 153, 0.14);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.14);
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(6, 212, 247, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 30%, rgba(167, 139, 250, 0.07), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 0% 100%, rgba(251, 191, 36, 0.04), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+input, select, textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cyan);
+  background: var(--surface-hover);
+}
+
+input[type="time"], input[type="date"] { font-family: var(--font-mono); font-size: 14px; }
+input[type="number"] { font-family: var(--font-mono); }
+
+::placeholder { color: var(--text-dim); }
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 10px 14px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+button:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+button:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--cyan-dim);
+  border-color: rgba(6, 212, 247, 0.4);
+  color: var(--cyan-soft);
+  font-weight: 600;
+}
+.btn-primary:hover { background: rgba(6, 212, 247, 0.22); border-color: var(--cyan); }
+
+.btn-ghost {
+  border-color: transparent;
+  background: var(--surface);
+}
+
+.btn-danger:hover {
+  background: var(--red-dim);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: var(--red);
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+
+/* ==================== LAYOUT ==================== */
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(28px, 5vw, 38px);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.header h1 .accent {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header .sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.header .actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Tabs */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(10, 14, 26, 0.78);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex: 1 1 0;
+  min-width: max-content;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--cyan-dim);
+  color: var(--cyan-soft);
+}
+
+.tab-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+.tab.active .tab-badge {
+  background: rgba(6, 212, 247, 0.25);
+  color: var(--cyan-soft);
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.25s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* Subject card */
+.subject-card { padding: 16px; }
+.subject-name-input {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  flex: 1;
+  min-width: 0;
+}
+.subject-name-input:hover { background: var(--surface); }
+.subject-name-input:focus { background: var(--surface); border-color: var(--cyan); }
+
+/* Topic row */
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.topic-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color 0.15s;
+}
+.topic-row:hover { border-color: var(--border-strong); }
+
+.topic-row .topic-name {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 8px;
+  font-size: 14px;
+  min-width: 0;
+}
+.topic-row .topic-name:focus { background: var(--bg-2); border-color: var(--cyan); }
+
+@media (max-width: 720px) {
+  .topic-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name del"
+      "controls controls"
+      "priority priority";
+    gap: 8px;
+  }
+  .topic-row .topic-name { grid-area: name; }
+  .topic-row .topic-del { grid-area: del; }
+  .topic-row .topic-controls { grid-area: controls; }
+  .topic-row .topic-priority { grid-area: priority; }
+}
+
+.topic-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.workload-pills {
+  display: inline-flex;
+  background: var(--bg-2);
+  border-radius: var(--r-sm);
+  padding: 2px;
+  border: 1px solid var(--border);
+}
+.workload-pill {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.workload-pill.active[data-val="1"] { background: var(--green-dim); color: var(--green); }
+.workload-pill.active[data-val="2"] { background: var(--amber-dim); color: var(--amber); }
+.workload-pill.active[data-val="3"] { background: var(--red-dim); color: var(--red); }
+
+.grade-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-2);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+}
+.grade-control label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+.grade-input {
+  width: 50px;
+  padding: 4px 6px;
+  font-size: 13px;
+  text-align: center;
+  background: transparent;
+  border: none;
+}
+.grade-input:focus { background: transparent; border: none; }
+
+.priority-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  text-align: center;
+  min-width: 60px;
+}
+.priority-low { background: var(--green-dim); color: var(--green); }
+.priority-med { background: var(--amber-dim); color: var(--amber); }
+.priority-high { background: var(--red-dim); color: var(--red); }
+
+.topic-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+}
+
+/* Stats grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.stat-value .stat-unit {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* Availability day */
+.day-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.day-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  min-width: 90px;
+}
+.day-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.time-input {
+  width: 110px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.time-sep { color: var(--text-dim); font-family: var(--font-mono); font-size: 12px; }
+
+.blocked-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.blocked-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.blocked-row .label-input {
+  flex: 1;
+  min-width: 100px;
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  font-size: 13px;
+}
+.blocked-row .label-input:focus { background: var(--surface); }
+
+/* Exams */
+.exam-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 100px 90px auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+}
+@media (max-width: 720px) {
+  .exam-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "subj subj" "date time" "dur del";
+  }
+  .exam-row > :nth-child(1) { grid-area: subj; }
+  .exam-row > :nth-child(2) { grid-area: date; }
+  .exam-row > :nth-child(3) { grid-area: time; }
+  .exam-row > :nth-child(4) { grid-area: dur; }
+  .exam-row > :nth-child(5) { grid-area: del; justify-self: end; }
+}
+.exam-row select, .exam-row input { padding: 8px 10px; font-size: 13px; }
+
+/* Plan view */
+.plan-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.day-group {
+  margin-bottom: 24px;
+}
+.day-group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.day-group-header.is-today {
+  border-bottom-color: var(--cyan);
+}
+.day-group-date {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+.day-group-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.is-today .day-group-date::before {
+  content: 'TODAY';
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: var(--cyan-dim);
+  color: var(--cyan-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+
+.session {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+  transition: all 0.15s;
+}
+.session:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+.session.completed {
+  opacity: 0.5;
+  border-left-color: var(--green);
+}
+.session.completed .session-topic { text-decoration: line-through; }
+
+.session-check {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-2);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.session-check:hover { border-color: var(--cyan); }
+.session-check:checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.session-check:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.session-body { min-width: 0; }
+.session-time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.session-subject {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-right: 8px;
+}
+.session-topic {
+  font-weight: 500;
+  font-size: 15px;
+  word-wrap: break-word;
+}
+.session-duration {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.banner {
+  background: var(--amber-dim);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: var(--amber);
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.banner-info {
+  background: var(--cyan-dim);
+  border-color: rgba(6, 212, 247, 0.3);
+  color: var(--cyan-soft);
+}
+
+/* Subject color dots */
+.subject-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Modal-ish backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 26, 0.78);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+}
+.modal h3 { font-family: var(--font-display); margin-bottom: 8px; }
+.modal p { color: var(--text-muted); margin-bottom: 20px; font-size: 14px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.help-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.inline-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .header .actions, .tabs, .panel:not(#panel-plan), .plan-controls, .session-check, .btn-icon, button { display: none !important; }
+  .panel { display: block !important; }
+  .day-group-header { color: black; border-bottom-color: #ccc; }
+  .day-group-date, .day-group-meta { color: black; }
+  .day-group-header.is-today { border-bottom-color: black; }
+  .is-today .day-group-date::before { background: #eee; color: black; }
+  .session { background: white; border: 1px solid #ccc; color: black; page-break-inside: avoid; }
+  .session-time, .session-duration, .session-subject { color: #333 !important; }
+  .header h1 { color: black; }
+  .header h1 .accent { -webkit-text-fill-color: black; color: black; }
+  .header .sub { color: #555; }
+  .day-group { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div>
+      <h1>Study <span class="accent">Plan</span></h1>
+      <p class="sub" id="header-sub">Prioritised. Printable. Tickable.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="loadSample()" title="Load sample data">Sample</button>
+      <button class="btn-ghost btn-danger" onclick="confirmReset()" title="Clear all data">Reset</button>
+      <button class="btn-primary" onclick="window.print()" title="Print this plan">Print</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="topics" onclick="showTab('topics')">
+      Topics <span class="tab-badge" id="badge-topics">0</span>
+    </button>
+    <button class="tab" data-tab="schedule" onclick="showTab('schedule')">
+      Availability <span class="tab-badge" id="badge-schedule">0</span>
+    </button>
+    <button class="tab" data-tab="plan" onclick="showTab('plan')">
+      Plan <span class="tab-badge" id="badge-plan">0</span>
+    </button>
+  </nav>
+
+  <!-- ============= TOPICS TAB ============= -->
+  <section class="panel active" id="panel-topics">
+    <div class="stats" id="topics-stats"></div>
+
+    <div id="subjects-container"></div>
+
+    <button class="btn-primary" onclick="addSubject()" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 8px;">
+      + Add Subject
+    </button>
+
+    <div class="card" style="margin-top: 24px;">
+      <div class="card-title">How priority works</div>
+      <p class="help-text">
+        Each topic gets a <strong>priority score</strong> = workload × (11 − grade prediction). Higher numbers mean more study time. Topics with high workload <em>and</em> low predicted grades climb to the top of the queue. The plan generator uses this — together with how close your exam is — to decide what to schedule first.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============= SCHEDULE TAB ============= -->
+  <section class="panel" id="panel-schedule">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Weekly availability</div>
+      </div>
+      <p class="help-text" style="margin-bottom: 16px;">
+        Set your free study window for each day, then add anything that breaks it up — classes that run late, work, training, family stuff. The planner only books sessions in the gaps.
+      </p>
+      <div id="avail-container"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Exam dates</div>
+        <button onclick="addExam()">+ Add Exam</button>
+      </div>
+      <div id="exams-container"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Session settings</div>
+      </div>
+      <div class="inline-controls">
+        <div class="grade-control">
+          <label>Session</label>
+          <input type="number" min="15" max="120" step="5" id="session-length" class="grade-input" style="width: 60px;" />
+          <span style="font-size: 12px; color: var(--text-muted);">min</span>
+        </div>
+        <div class="grade-control">
+          <label>Break</label>
+          <input type="number" min="0" max="60" step="5" id="break-length" class="grade-input" style="width: 60px;" />
+          <span style="font-size: 12px; color: var(--text-muted);">min</span>
+        </div>
+      </div>
+      <p class="help-text">Sessions of 45 min with 15 min breaks (Pomodoro-style) are the default. Adjust to taste.</p>
+    </div>
+
+  </section>
+
+  <!-- ============= PLAN TAB ============= -->
+  <section class="panel" id="panel-plan">
+
+    <div class="plan-controls">
+      <button class="btn-primary" onclick="regenerate()">⟲ Generate Plan</button>
+      <button onclick="clearCompleted()">Reset Ticks</button>
+      <select id="filter-subject" onchange="renderPlan()" style="width: auto; min-width: 160px;">
+        <option value="">All subjects</option>
+      </select>
+      <label style="display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--text-muted); margin-left: auto;">
+        <input type="checkbox" id="hide-completed" onchange="renderPlan()" style="width: auto;" />
+        Hide completed
+      </label>
+    </div>
+
+    <div id="plan-container"></div>
+  </section>
+
+</div>
+
+<!-- Reset confirmation modal -->
+<div class="modal-backdrop" id="reset-modal">
+  <div class="modal">
+    <h3>Clear everything?</h3>
+    <p>This wipes all subjects, topics, exams, availability and ticked sessions. Cannot be undone.</p>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" onclick="resetAll()">Clear all</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE & STORAGE
+// ============================================================
+const STORAGE_KEY = 'studyPlan_v1';
+
+const SUBJECT_COLORS = [
+  '#06d4f7', '#a78bfa', '#fbbf24', '#34d399', '#f87171',
+  '#f472b6', '#60a5fa', '#fb923c', '#a3e635', '#22d3ee'
+];
+
+const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+const DAY_NAMES = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+const DAY_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+let state = loadState() || createSampleState();
+
+function uid() { return Math.random().toString(36).slice(2, 10); }
+
+function isoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+function createBlankState() {
+  return {
+    subjects: [],
+    exams: [],
+    weeklyAvail: defaultAvailability(),
+    completed: {},
+    generatedSessions: [],
+    sessionLength: 45,
+    breakLength: 15,
+    lastGenerated: null
+  };
+}
+
+function defaultAvailability() {
+  return {
+    mon: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+    tue: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+    wed: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+    thu: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+    fri: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+    sat: { studyStart: '10:00', studyEnd: '20:00', blocked: [] },
+    sun: { studyStart: '10:00', studyEnd: '20:00', blocked: [] }
+  };
+}
+
+function createSampleState() {
+  // Sample data based on the Leaving Cert chemistry example
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const examStart = addDays(today, 14);
+  while (examStart.getDay() !== 1) examStart.setDate(examStart.getDate() + 1); // next Monday
+
+  const chemistryId = uid();
+  return {
+    subjects: [
+      {
+        id: chemistryId,
+        name: 'Chemistry',
+        color: SUBJECT_COLORS[0],
+        topics: [
+          { id: uid(), name: 'Periodic table', workload: 1, grade: 8 },
+          { id: uid(), name: 'Atomic structure', workload: 2, grade: 7 },
+          { id: uid(), name: 'The mole', workload: 1, grade: 8 },
+          { id: uid(), name: 'Volumetric analysis', workload: 3, grade: 5 },
+          { id: uid(), name: 'Acids and bases', workload: 1, grade: 8 },
+          { id: uid(), name: 'Electron arrangement', workload: 2, grade: 6 },
+          { id: uid(), name: 'Chemical bonding', workload: 3, grade: 4 },
+          { id: uid(), name: 'Rates of reaction', workload: 3, grade: 7 },
+          { id: uid(), name: 'Behaviour of gases', workload: 2, grade: 6 },
+          { id: uid(), name: 'Stoichiometry', workload: 2, grade: 5 },
+          { id: uid(), name: 'Environmental chemistry', workload: 1, grade: 7 }
+        ]
+      }
+    ],
+    exams: [
+      { id: uid(), subjectId: chemistryId, date: isoDate(examStart), time: '09:00', duration: 120 }
+    ],
+    weeklyAvail: {
+      mon: { studyStart: '16:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '20:00', end: '21:00', label: 'Training' }] },
+      tue: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+      wed: { studyStart: '16:00', studyEnd: '22:00', blocked: [{ id: uid(), start: '19:00', end: '21:00', label: 'Training' }] },
+      thu: { studyStart: '16:00', studyEnd: '22:00', blocked: [] },
+      fri: { studyStart: '13:30', studyEnd: '22:00', blocked: [{ id: uid(), start: '18:00', end: '20:00', label: 'Training' }] },
+      sat: { studyStart: '15:00', studyEnd: '22:00', blocked: [] },
+      sun: { studyStart: '15:00', studyEnd: '22:00', blocked: [] }
+    },
+    completed: {},
+    generatedSessions: [],
+    sessionLength: 45,
+    breakLength: 15,
+    lastGenerated: null
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    // Validate basics
+    if (!s.subjects || !s.weeklyAvail) return null;
+    return s;
+  } catch (e) { return null; }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { /* sandboxed; in-memory only */ }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function topicPriority(workload, grade) { return workload * (11 - grade); }
+function priorityClass(p) {
+  if (p >= 18) return 'priority-high';
+  if (p >= 9) return 'priority-med';
+  return 'priority-low';
+}
+function priorityLabel(p) {
+  if (p >= 18) return `HIGH ${p}`;
+  if (p >= 9) return `MED ${p}`;
+  return `LOW ${p}`;
+}
+
+function topicHoursNeeded(t) {
+  const base = t.workload * 1.5;
+  const boost = (10 - t.grade) * 0.4;
+  return Math.max(0.75, Math.min(8, base + boost));
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function parseTimeOnDate(date, hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const r = new Date(date);
+  r.setHours(h, m, 0, 0);
+  return r;
+}
+
+function formatTime(d) {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function formatDayHeader(date) {
+  return date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function totalStudyMinutes() {
+  let total = 0;
+  state.subjects.forEach(s => s.topics.forEach(t => { total += topicHoursNeeded(t) * 60; }));
+  return total;
+}
+
+// ============================================================
+// RENDER: STATS / BADGES
+// ============================================================
+function renderBadges() {
+  const tCount = state.subjects.reduce((sum, s) => sum + s.topics.length, 0);
+  document.getElementById('badge-topics').textContent = tCount;
+  document.getElementById('badge-schedule').textContent = state.exams.length;
+  document.getElementById('badge-plan').textContent = state.generatedSessions.length;
+}
+
+function renderStats() {
+  const c = document.getElementById('topics-stats');
+  const subjectCount = state.subjects.length;
+  const topicCount = state.subjects.reduce((sum, s) => sum + s.topics.length, 0);
+  const totalHours = Math.round(totalStudyMinutes() / 60);
+  const examCount = state.exams.length;
+
+  c.innerHTML = `
+    <div class="stat">
+      <div class="stat-label">Subjects</div>
+      <div class="stat-value">${subjectCount}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Topics</div>
+      <div class="stat-value">${topicCount}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Estimated</div>
+      <div class="stat-value">${totalHours}<span class="stat-unit">hrs</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Exams</div>
+      <div class="stat-value">${examCount}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// RENDER: SUBJECTS / TOPICS
+// ============================================================
+function renderSubjects() {
+  const container = document.getElementById('subjects-container');
+  if (state.subjects.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <h3>No subjects yet</h3>
+        <p>Add a subject to start. Each subject is a list of topics rated by workload and how confident you'd feel sitting an exam on it today.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = state.subjects.map(subj => `
+    <div class="card subject-card" data-subject="${subj.id}">
+      <div class="card-header">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+          <span class="subject-dot" style="background: ${subj.color}"></span>
+          <input class="subject-name-input" value="${escapeHtml(subj.name)}"
+                 onchange="renameSubject('${subj.id}', this.value)" />
+        </div>
+        <button class="btn-icon btn-danger" onclick="deleteSubject('${subj.id}')" title="Delete subject">✕</button>
+      </div>
+
+      <div class="topics-list">
+        ${subj.topics.length === 0 ? `<div class="topic-empty">No topics yet — add one below.</div>` :
+          subj.topics.map(t => renderTopicRow(subj.id, t)).join('')}
+      </div>
+
+      <button onclick="addTopic('${subj.id}')" style="margin-top: 12px; width: 100%;">+ Add topic</button>
+    </div>
+  `).join('');
+}
+
+function renderTopicRow(subjectId, t) {
+  const p = topicPriority(t.workload, t.grade);
+  return `
+    <div class="topic-row" data-topic="${t.id}">
+      <input class="topic-name" value="${escapeHtml(t.name)}"
+             placeholder="Topic name"
+             onchange="updateTopic('${subjectId}', '${t.id}', 'name', this.value)" />
+      <div class="topic-controls">
+        <div class="workload-pills" title="Workload">
+          ${[1, 2, 3].map(v => `
+            <button class="workload-pill ${t.workload === v ? 'active' : ''}" data-val="${v}"
+                    onclick="updateTopic('${subjectId}', '${t.id}', 'workload', ${v})">${v}</button>
+          `).join('')}
+        </div>
+        <div class="grade-control" title="Grade prediction (0–10)">
+          <label>Grade</label>
+          <input type="number" min="0" max="10" step="1" class="grade-input"
+                 value="${t.grade}"
+                 onchange="updateTopic('${subjectId}', '${t.id}', 'grade', parseInt(this.value || '0'))" />
+        </div>
+      </div>
+      <span class="priority-badge ${priorityClass(p)} topic-priority" title="Priority score">${priorityLabel(p)}</span>
+      <button class="btn-icon btn-danger topic-del" onclick="deleteTopic('${subjectId}', '${t.id}')" title="Delete">✕</button>
+    </div>
+  `;
+}
+
+function addSubject() {
+  state.subjects.push({
+    id: uid(),
+    name: 'New Subject',
+    color: SUBJECT_COLORS[state.subjects.length % SUBJECT_COLORS.length],
+    topics: []
+  });
+  saveState();
+  renderAll();
+}
+
+function renameSubject(id, name) {
+  const s = state.subjects.find(s => s.id === id);
+  if (s) { s.name = name; saveState(); renderExams(); renderPlanFilter(); renderBadges(); }
+}
+
+function deleteSubject(id) {
+  if (!confirm('Delete this subject and all its topics?')) return;
+  state.subjects = state.subjects.filter(s => s.id !== id);
+  state.exams = state.exams.filter(e => e.subjectId !== id);
+  saveState();
+  renderAll();
+}
+
+function addTopic(subjectId) {
+  const s = state.subjects.find(s => s.id === subjectId);
+  if (!s) return;
+  s.topics.push({ id: uid(), name: '', workload: 2, grade: 5 });
+  saveState();
+  renderSubjects();
+  renderStats();
+  renderBadges();
+  // Focus newly added input
+  setTimeout(() => {
+    const rows = document.querySelectorAll(`[data-subject="${subjectId}"] .topic-row`);
+    const last = rows[rows.length - 1];
+    if (last) last.querySelector('.topic-name').focus();
+  }, 30);
+}
+
+function updateTopic(subjectId, topicId, field, value) {
+  const s = state.subjects.find(s => s.id === subjectId);
+  if (!s) return;
+  const t = s.topics.find(t => t.id === topicId);
+  if (!t) return;
+  t[field] = value;
+  saveState();
+  if (field === 'workload' || field === 'grade') {
+    // Re-render only the priority badge & pills
+    renderSubjects();
+    renderStats();
+  }
+}
+
+function deleteTopic(subjectId, topicId) {
+  const s = state.subjects.find(s => s.id === subjectId);
+  if (!s) return;
+  s.topics = s.topics.filter(t => t.id !== topicId);
+  saveState();
+  renderSubjects();
+  renderStats();
+  renderBadges();
+}
+
+// ============================================================
+// RENDER: AVAILABILITY
+// ============================================================
+function renderAvailability() {
+  const c = document.getElementById('avail-container');
+  c.innerHTML = DAY_KEYS.map(dk => {
+    const d = state.weeklyAvail[dk];
+    return `
+      <div class="day-row">
+        <div class="day-header">
+          <div class="day-name">${DAY_NAMES[dk]}</div>
+          <div class="day-times">
+            <input type="time" class="time-input" value="${d.studyStart}"
+                   onchange="updateAvail('${dk}', 'studyStart', this.value)" />
+            <span class="time-sep">→</span>
+            <input type="time" class="time-input" value="${d.studyEnd}"
+                   onchange="updateAvail('${dk}', 'studyEnd', this.value)" />
+            <button class="btn-icon" onclick="addBlocked('${dk}')" title="Add a blocked slot">+</button>
+          </div>
+        </div>
+        ${d.blocked.length > 0 ? `
+          <div class="blocked-list">
+            ${d.blocked.map(b => `
+              <div class="blocked-row">
+                <input type="time" class="time-input" value="${b.start}" style="width: 100px;"
+                       onchange="updateBlocked('${dk}', '${b.id}', 'start', this.value)" />
+                <span class="time-sep">→</span>
+                <input type="time" class="time-input" value="${b.end}" style="width: 100px;"
+                       onchange="updateBlocked('${dk}', '${b.id}', 'end', this.value)" />
+                <input type="text" class="label-input" value="${escapeHtml(b.label)}" placeholder="What's on?"
+                       onchange="updateBlocked('${dk}', '${b.id}', 'label', this.value)" />
+                <button class="btn-icon btn-danger" onclick="deleteBlocked('${dk}', '${b.id}')" title="Remove">✕</button>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function updateAvail(dk, field, value) {
+  state.weeklyAvail[dk][field] = value;
+  saveState();
+}
+
+function addBlocked(dk) {
+  state.weeklyAvail[dk].blocked.push({ id: uid(), start: '18:00', end: '19:00', label: '' });
+  saveState();
+  renderAvailability();
+}
+
+function updateBlocked(dk, id, field, value) {
+  const b = state.weeklyAvail[dk].blocked.find(b => b.id === id);
+  if (b) { b[field] = value; saveState(); }
+}
+
+function deleteBlocked(dk, id) {
+  state.weeklyAvail[dk].blocked = state.weeklyAvail[dk].blocked.filter(b => b.id !== id);
+  saveState();
+  renderAvailability();
+}
+
+// ============================================================
+// RENDER: EXAMS
+// ============================================================
+function renderExams() {
+  const c = document.getElementById('exams-container');
+  if (state.subjects.length === 0) {
+    c.innerHTML = `<div class="banner">Add a subject in the Topics tab before scheduling exams.</div>`;
+    return;
+  }
+  if (state.exams.length === 0) {
+    c.innerHTML = `<div class="topic-empty">No exams scheduled. Click "+ Add Exam" to set one.</div>`;
+    return;
+  }
+
+  // sort by date
+  const sorted = [...state.exams].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  c.innerHTML = sorted.map(e => `
+    <div class="exam-row">
+      <select onchange="updateExam('${e.id}', 'subjectId', this.value)">
+        ${state.subjects.map(s => `<option value="${s.id}" ${e.subjectId === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+      </select>
+      <input type="date" value="${e.date}" onchange="updateExam('${e.id}', 'date', this.value)" />
+      <input type="time" value="${e.time}" onchange="updateExam('${e.id}', 'time', this.value)" />
+      <input type="number" min="15" max="300" step="5" value="${e.duration}"
+             title="Duration (min)"
+             onchange="updateExam('${e.id}', 'duration', parseInt(this.value || '0'))" />
+      <button class="btn-icon btn-danger" onclick="deleteExam('${e.id}')" title="Delete exam">✕</button>
+    </div>
+  `).join('');
+}
+
+function addExam() {
+  if (state.subjects.length === 0) {
+    alert('Add a subject first in the Topics tab.');
+    return;
+  }
+  const inTwoWeeks = isoDate(addDays(new Date(), 14));
+  state.exams.push({
+    id: uid(),
+    subjectId: state.subjects[0].id,
+    date: inTwoWeeks,
+    time: '09:00',
+    duration: 120
+  });
+  saveState();
+  renderExams();
+  renderBadges();
+}
+
+function updateExam(id, field, value) {
+  const e = state.exams.find(e => e.id === id);
+  if (e) { e[field] = value; saveState(); renderExams(); }
+}
+
+function deleteExam(id) {
+  state.exams = state.exams.filter(e => e.id !== id);
+  saveState();
+  renderExams();
+  renderBadges();
+}
+
+// ============================================================
+// SCHEDULE GENERATION
+// ============================================================
+function generateSchedule() {
+  state.sessionLength = parseInt(document.getElementById('session-length').value || '45');
+  state.breakLength = parseInt(document.getElementById('break-length').value || '15');
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (state.exams.length === 0) return [];
+
+  // Build subject map
+  const subjMap = {};
+  state.subjects.forEach(s => { subjMap[s.id] = s; });
+
+  // Validate exams have subjects
+  const validExams = state.exams.filter(e => subjMap[e.subjectId]);
+  if (validExams.length === 0) return [];
+
+  const sortedExams = [...validExams].sort((a, b) => a.date.localeCompare(b.date));
+  const lastExamDate = new Date(sortedExams[sortedExams.length - 1].date + 'T23:59:59');
+
+  // Build topic queue: one entry per topic, with exam metadata
+  const topicQueue = [];
+  state.subjects.forEach(subj => {
+    const exam = validExams.find(e => e.subjectId === subj.id);
+    if (!exam) return;
+    const examDateTime = new Date(`${exam.date}T${exam.time}`);
+    if (examDateTime < today) return; // exam already passed
+    subj.topics.forEach(t => {
+      if (!t.name.trim()) return;
+      const minsNeeded = Math.ceil(topicHoursNeeded(t) * 60);
+      const blocksNeeded = Math.ceil(minsNeeded / state.sessionLength);
+      topicQueue.push({
+        topicId: t.id,
+        subjectId: subj.id,
+        subjectName: subj.name,
+        subjectColor: subj.color,
+        topicName: t.name,
+        examDate: exam.date,
+        examDateTime,
+        priority: topicPriority(t.workload, t.grade),
+        blocksRemaining: blocksNeeded,
+        blocksTotal: blocksNeeded
+      });
+    });
+  });
+
+  if (topicQueue.length === 0) return [];
+
+  // Iterate days from today through last exam
+  const sessions = [];
+  let day = new Date(today);
+  let lastTopicId = null;
+
+  while (day <= lastExamDate) {
+    const dk = ['sun','mon','tue','wed','thu','fri','sat'][day.getDay()];
+    const avail = state.weeklyAvail[dk];
+
+    if (avail) {
+      const dayStr = isoDate(day);
+      const examsToday = validExams.filter(e => e.date === dayStr);
+      const slots = computeAvailableSlots(day, avail, examsToday);
+
+      slots.forEach(slot => {
+        let cursor = new Date(slot.start);
+        while (cursor < slot.end) {
+          const sessionEnd = new Date(cursor.getTime() + state.sessionLength * 60000);
+          if (sessionEnd > slot.end) break;
+
+          // Find eligible topics: still have blocks, exam after this session
+          const eligible = topicQueue.filter(t =>
+            t.blocksRemaining > 0 &&
+            t.examDateTime > sessionEnd
+          );
+          if (eligible.length === 0) break;
+
+          // Score each: weight by priority, urgency (closer exam), and remaining %
+          const scored = eligible.map(t => {
+            const daysToExam = Math.max(0.5, (t.examDateTime - cursor) / (1000 * 60 * 60 * 24));
+            const remainingRatio = t.blocksRemaining / t.blocksTotal;
+            const urgency = (t.priority / daysToExam) + remainingRatio * 4;
+            return { topic: t, score: urgency };
+          });
+          scored.sort((a, b) => b.score - a.score);
+
+          // Avoid same topic immediately back to back if alternative exists
+          let chosen = scored[0].topic;
+          if (chosen.topicId === lastTopicId && scored.length > 1) {
+            chosen = scored[1].topic;
+          }
+
+          chosen.blocksRemaining -= 1;
+          lastTopicId = chosen.topicId;
+
+          sessions.push({
+            id: `${dayStr}-${formatTime(cursor)}-${chosen.topicId}`,
+            date: dayStr,
+            startTime: formatTime(cursor),
+            endTime: formatTime(sessionEnd),
+            subjectId: chosen.subjectId,
+            subjectName: chosen.subjectName,
+            subjectColor: chosen.subjectColor,
+            topicId: chosen.topicId,
+            topicName: chosen.topicName,
+            duration: state.sessionLength
+          });
+
+          cursor = new Date(sessionEnd.getTime() + state.breakLength * 60000);
+        }
+      });
+    }
+
+    day = addDays(day, 1);
+  }
+
+  // Compute under-allocated topics for warning
+  const underAllocated = topicQueue.filter(t => t.blocksRemaining > 0);
+  state.lastUnderAllocated = underAllocated.map(t => `${t.subjectName}: ${t.topicName} (${t.blocksRemaining * state.sessionLength} min short)`);
+
+  return sessions;
+}
+
+function computeAvailableSlots(day, avail, examsToday) {
+  let intervals = [{
+    start: parseTimeOnDate(day, avail.studyStart),
+    end: parseTimeOnDate(day, avail.studyEnd)
+  }];
+
+  // If today, clip past
+  const now = new Date();
+  if (isoDate(day) === isoDate(now)) {
+    intervals = intervals.map(int => {
+      if (int.end <= now) return null;
+      if (int.start < now) {
+        // round up to next 5 min
+        const ceil = new Date(now);
+        ceil.setMinutes(Math.ceil(ceil.getMinutes() / 5) * 5, 0, 0);
+        return { start: ceil, end: int.end };
+      }
+      return int;
+    }).filter(Boolean);
+  }
+
+  // Subtract blocked slots
+  avail.blocked.forEach(b => {
+    intervals = subtractInterval(intervals, parseTimeOnDate(day, b.start), parseTimeOnDate(day, b.end));
+  });
+
+  // Subtract exam time itself + 30 min buffer before
+  examsToday.forEach(e => {
+    const eStart = parseTimeOnDate(day, e.time);
+    const eEnd = new Date(eStart.getTime() + e.duration * 60000);
+    const buffer = new Date(eStart.getTime() - 30 * 60000);
+    intervals = subtractInterval(intervals, buffer, eEnd);
+  });
+
+  return intervals.filter(i => i.end > i.start);
+}
+
+function subtractInterval(intervals, blockStart, blockEnd) {
+  const result = [];
+  intervals.forEach(int => {
+    if (blockEnd <= int.start || blockStart >= int.end) {
+      result.push(int);
+    } else {
+      if (blockStart > int.start) result.push({ start: int.start, end: new Date(Math.min(blockStart, int.end)) });
+      if (blockEnd < int.end) result.push({ start: new Date(Math.max(blockEnd, int.start)), end: int.end });
+    }
+  });
+  return result;
+}
+
+function regenerate() {
+  state.generatedSessions = generateSchedule();
+  state.lastGenerated = new Date().toISOString();
+  saveState();
+  renderPlan();
+  renderBadges();
+  // Switch to plan tab if not there
+  showTab('plan');
+}
+
+// ============================================================
+// RENDER: PLAN
+// ============================================================
+function renderPlanFilter() {
+  const sel = document.getElementById('filter-subject');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = `<option value="">All subjects</option>` +
+    state.subjects.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  sel.value = current;
+}
+
+function renderPlan() {
+  const c = document.getElementById('plan-container');
+  renderPlanFilter();
+
+  if (state.generatedSessions.length === 0) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <h3>No plan yet</h3>
+        <p>Add your topics, weekly availability and exam dates, then hit <strong>Generate Plan</strong>.</p>
+      </div>`;
+    return;
+  }
+
+  const filterSubject = document.getElementById('filter-subject').value;
+  const hideCompleted = document.getElementById('hide-completed').checked;
+
+  let sessions = state.generatedSessions;
+  if (filterSubject) sessions = sessions.filter(s => s.subjectId === filterSubject);
+  if (hideCompleted) sessions = sessions.filter(s => !state.completed[s.id]);
+
+  if (sessions.length === 0) {
+    c.innerHTML = `<div class="empty-state"><h3>Nothing to show</h3><p>Try changing your filter.</p></div>`;
+    return;
+  }
+
+  // Group by day
+  const groups = {};
+  sessions.forEach(s => {
+    if (!groups[s.date]) groups[s.date] = [];
+    groups[s.date].push(s);
+  });
+
+  const todayStr = isoDate(new Date());
+
+  // Warning banner
+  let warningHtml = '';
+  if (state.lastUnderAllocated && state.lastUnderAllocated.length > 0 && !filterSubject) {
+    warningHtml = `
+      <div class="banner">
+        <strong>Heads up:</strong>&nbsp;Not enough free time before exams to cover everything fully.
+        Consider adding more study hours or trimming topics. Short by:
+        <ul style="margin: 6px 0 0 18px; font-size: 12px;">
+          ${state.lastUnderAllocated.slice(0, 5).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+          ${state.lastUnderAllocated.length > 5 ? `<li>…and ${state.lastUnderAllocated.length - 5} more</li>` : ''}
+        </ul>
+      </div>`;
+  }
+
+  // Stats
+  const total = state.generatedSessions.length;
+  const done = state.generatedSessions.filter(s => state.completed[s.id]).length;
+  const totalHrs = (state.generatedSessions.reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
+  const doneHrs = (state.generatedSessions.filter(s => state.completed[s.id]).reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
+
+  const statsHtml = `
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-value">${done}<span class="stat-unit">/ ${total}</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Hours done</div>
+        <div class="stat-value">${doneHrs}<span class="stat-unit">/ ${totalHrs}</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Progress</div>
+        <div class="stat-value">${total ? Math.round(done / total * 100) : 0}<span class="stat-unit">%</span></div>
+      </div>
+    </div>
+  `;
+
+  const groupsHtml = Object.keys(groups).sort().map(date => {
+    const items = groups[date];
+    const dateObj = new Date(date + 'T12:00:00');
+    const isToday = date === todayStr;
+    const totalMin = items.reduce((s, i) => s + i.duration, 0);
+
+    // Mark exam days
+    const examsOnDay = state.exams.filter(e => e.date === date);
+    const examLabel = examsOnDay.length > 0
+      ? ` · <span style="color: var(--amber);">EXAM ${examsOnDay.map(e => {
+          const subj = state.subjects.find(s => s.id === e.subjectId);
+          return `${subj ? subj.name : ''} ${e.time}`;
+        }).join(', ')}</span>`
+      : '';
+
+    return `
+      <div class="day-group">
+        <div class="day-group-header ${isToday ? 'is-today' : ''}">
+          <div class="day-group-date">${formatDayHeader(dateObj)}</div>
+          <div class="day-group-meta">${items.length} sessions · ${Math.round(totalMin)} min${examLabel}</div>
+        </div>
+        ${items.map(s => `
+          <div class="session ${state.completed[s.id] ? 'completed' : ''}" style="border-left-color: ${s.subjectColor || 'var(--cyan)'}">
+            <input type="checkbox" class="session-check" ${state.completed[s.id] ? 'checked' : ''}
+                   onchange="toggleComplete('${s.id}')" />
+            <div class="session-body">
+              <div class="session-time">${s.startTime}–${s.endTime}</div>
+              <div>
+                <span class="session-subject" style="color: ${s.subjectColor || 'var(--cyan)'}">${escapeHtml(s.subjectName)}</span>
+                <span class="session-topic">${escapeHtml(s.topicName)}</span>
+              </div>
+            </div>
+            <div class="session-duration">${s.duration}m</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+
+  c.innerHTML = warningHtml + statsHtml + groupsHtml;
+}
+
+function toggleComplete(id) {
+  if (state.completed[id]) delete state.completed[id];
+  else state.completed[id] = true;
+  saveState();
+  // Update progress stats without full re-render
+  renderPlan();
+}
+
+function clearCompleted() {
+  if (!confirm('Reset all ticked sessions?')) return;
+  state.completed = {};
+  saveState();
+  renderPlan();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+  if (name === 'plan') renderPlan();
+}
+
+// ============================================================
+// MODAL / RESET
+// ============================================================
+function confirmReset() {
+  document.getElementById('reset-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('reset-modal').classList.remove('open');
+}
+function resetAll() {
+  state = createBlankState();
+  saveState();
+  closeModal();
+  renderAll();
+  showTab('topics');
+}
+function loadSample() {
+  if (state.subjects.length > 0 && !confirm('This will replace your current data with sample data. Continue?')) return;
+  state = createSampleState();
+  saveState();
+  renderAll();
+  showTab('topics');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function renderAll() {
+  renderStats();
+  renderSubjects();
+  renderAvailability();
+  renderExams();
+  renderBadges();
+  renderPlan();
+  document.getElementById('session-length').value = state.sessionLength;
+  document.getElementById('break-length').value = state.breakLength;
+}
+
+// Persist session length / break length on change
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'session-length') {
+    state.sessionLength = parseInt(e.target.value || '45');
+    saveState();
+  }
+  if (e.target.id === 'break-length') {
+    state.breakLength = parseInt(e.target.value || '15');
+    saveState();
+  }
+});
+
+// Close modal on backdrop click
+document.getElementById('reset-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'reset-modal') closeModal();
+});
+
+renderAll();
+</script>
+</body>
+</html>
