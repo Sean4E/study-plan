@@ -747,6 +747,197 @@ button:active { transform: scale(0.98); }
   color: var(--cyan-soft);
 }
 
+/* Insight banner — structured shortfall + recommendations */
+.insight-banner {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.04));
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.insight-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.insight-head-text { min-width: 0; flex: 1; }
+.insight-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--amber);
+}
+.insight-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.2);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.insight-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.insight-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: var(--amber);
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.insight-toggle:hover {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: var(--amber);
+}
+.insight-toggle svg {
+  transition: transform 0.2s;
+}
+.insight-banner.expanded .insight-toggle svg {
+  transform: rotate(180deg);
+}
+
+.insight-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.insight-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.insight-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.insight-pill em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+.insight-pill-muted {
+  color: var(--text-muted);
+}
+
+.insight-details {
+  display: none;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(251, 191, 36, 0.25);
+}
+.insight-banner.expanded .insight-details { display: block; }
+
+.insight-section { margin-bottom: 18px; }
+.insight-section:last-child { margin-bottom: 0; }
+.insight-section-title {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.insight-suggestions {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+.insight-suggestions li {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 2px solid var(--amber);
+}
+.suggestion-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.suggestion-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.insight-topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.insight-topics li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 0;
+  flex-wrap: wrap;
+}
+.insight-topic-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: color-mix(in srgb, var(--tag-color, var(--amber)) 18%, transparent);
+  color: var(--tag-color, var(--amber));
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.insight-topic-name { color: var(--text); flex: 1; min-width: 0; }
+.insight-topic-short {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.insight-topic-more {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 0;
+}
+
 /* Subject color dots */
 .subject-dot {
   display: inline-block;
@@ -1756,11 +1947,214 @@ function generateSchedule() {
     day = addDays(day, 1);
   }
 
-  // Compute under-allocated topics for warning
-  const underAllocated = topicQueue.filter(t => t.blocksRemaining > 0);
-  state.lastUnderAllocated = underAllocated.map(t => `${t.subjectName}: ${t.topicName} (${t.blocksRemaining * state.sessionLength} min short)`);
+  // Capture under-allocated topics (used to render the insight banner with
+  // structured data for recommendations + per-subject breakdown).
+  state.lastUnderAllocated = topicQueue
+    .filter(t => t.blocksRemaining > 0)
+    .map(t => ({
+      subjectId: t.subjectId,
+      subjectName: t.subjectName,
+      subjectColor: t.subjectColor,
+      topicId: t.topicId,
+      topicName: t.topicName,
+      shortMin: t.blocksRemaining * state.sessionLength,
+      priority: t.priority,
+      examDate: t.examDate
+    }));
 
   return sessions;
+}
+
+function computePlanRecommendations() {
+  const items = state.lastUnderAllocated || [];
+  if (items.length === 0) return null;
+
+  const sessionLen = state.sessionLength || 45;
+  const totalShortMin = items.reduce((s, x) => s + x.shortMin, 0);
+
+  // Per-subject roll-up
+  const bySubject = {};
+  items.forEach(it => {
+    if (!bySubject[it.subjectId]) {
+      bySubject[it.subjectId] = { name: it.subjectName, color: it.subjectColor, min: 0, count: 0 };
+    }
+    bySubject[it.subjectId].min += it.shortMin;
+    bySubject[it.subjectId].count += 1;
+  });
+  const subjectShortfalls = Object.values(bySubject).sort((a, b) => b.min - a.min);
+
+  // How long until the last exam — drives "extra hours/week" maths
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcoming = state.exams
+    .map(e => ({ ...e, dt: new Date(`${e.date}T${e.time}`) }))
+    .filter(e => e.dt >= today)
+    .sort((a, b) => a.dt - b.dt);
+  const lastExam = upcoming[upcoming.length - 1];
+  const daysToLastExam = lastExam ? Math.max(1, Math.round((lastExam.dt - today) / 86400000)) : 1;
+  const weeksToLastExam = Math.max(1, daysToLastExam / 7);
+
+  const suggestions = [];
+
+  // 1. Extra hours per week to close the gap.
+  const extraPerWeekMin = totalShortMin / weeksToLastExam;
+  suggestions.push({
+    title: `Add ${(extraPerWeekMin / 60).toFixed(1)} hrs/week to your availability`,
+    detail: `Closes the full gap if held until your last exam — about ${(extraPerWeekMin / 7 / 60).toFixed(1)} hrs/day across ~${Math.round(weeksToLastExam)} week${Math.round(weeksToLastExam) === 1 ? '' : 's'}.`,
+    impact: totalShortMin
+  });
+
+  // 2. Push study end an hour later on days that currently end before 23:00.
+  const couldExtend = DAY_KEYS.filter(dk => {
+    const end = state.weeklyAvail[dk] && state.weeklyAvail[dk].studyEnd;
+    if (!end) return false;
+    const [h, m] = end.split(':').map(Number);
+    return (h + (m || 0) / 60) < 23;
+  });
+  if (couldExtend.length >= 1) {
+    const extraPerWeek = couldExtend.length * 60;
+    const extraTotal = extraPerWeek * weeksToLastExam;
+    const dayList = couldExtend.map(dk => DAY_NAMES[dk].slice(0, 3)).join(', ');
+    suggestions.push({
+      title: `Study one hour later on ${couldExtend.length} day${couldExtend.length === 1 ? '' : 's'}`,
+      detail: `${dayList} currently end before 23:00. Adds ~${(extraPerWeek / 60).toFixed(0)} hrs/week (~${(extraTotal / 60).toFixed(0)} hrs over the run-up).`,
+      impact: extraTotal
+    });
+  }
+
+  // 3. Push study start an hour earlier on weekend days that begin late.
+  const couldStartEarlier = DAY_KEYS.filter(dk => {
+    const start = state.weeklyAvail[dk] && state.weeklyAvail[dk].studyStart;
+    if (!start) return false;
+    const [h] = start.split(':').map(Number);
+    return h >= 10 && (dk === 'sat' || dk === 'sun');
+  });
+  if (couldStartEarlier.length >= 1) {
+    const extraPerWeek = couldStartEarlier.length * 60;
+    const extraTotal = extraPerWeek * weeksToLastExam;
+    suggestions.push({
+      title: `Start one hour earlier on the weekend`,
+      detail: `Adds ~${(extraPerWeek / 60).toFixed(0)} hrs/week (~${(extraTotal / 60).toFixed(0)} hrs over the run-up).`,
+      impact: extraTotal
+    });
+  }
+
+  // 4. Shorter breaks → more sessions per window.
+  if (state.breakLength > 5) {
+    const newBreak = Math.max(5, state.breakLength - 5);
+    const breakDelta = state.breakLength - newBreak;
+    const sessionsPerDay = 4; // rough average across availability
+    const savedTotal = breakDelta * sessionsPerDay * 7 * weeksToLastExam;
+    if (savedTotal >= 60) {
+      suggestions.push({
+        title: `Shorten breaks: ${state.breakLength} → ${newBreak} min`,
+        detail: `Frees roughly ${(savedTotal / 60).toFixed(0)} extra hours over the run-up by fitting more sessions into your existing windows.`,
+        impact: savedTotal
+      });
+    }
+  }
+
+  // 5. Trim or deprioritise the lowest-priority shortfalls.
+  const lowest = [...items].sort((a, b) => a.priority - b.priority).slice(0, 5);
+  const lowestSaved = lowest.reduce((s, x) => s + x.shortMin, 0);
+  if (lowest.length >= 2) {
+    suggestions.push({
+      title: `Deprioritise ${lowest.length} low-priority topics`,
+      detail: lowest.map(t => `${t.subjectName} – ${t.topicName}`).join('; ') + '.',
+      impact: lowestSaved
+    });
+  }
+
+  suggestions.sort((a, b) => b.impact - a.impact);
+
+  return {
+    totalShortMin,
+    totalShortHrs: (totalShortMin / 60).toFixed(1),
+    subjectShortfalls,
+    suggestions,
+    weeksToLastExam: Math.max(1, Math.round(weeksToLastExam)),
+    daysToLastExam,
+    affectedTopicCount: items.length
+  };
+}
+
+let insightExpanded = false;
+
+function renderInsightBanner(rec) {
+  const topSubjects = rec.subjectShortfalls.slice(0, 3);
+  const moreSubjects = rec.subjectShortfalls.length - topSubjects.length;
+  const items = state.lastUnderAllocated || [];
+  const expandedCls = insightExpanded ? ' expanded' : '';
+  const toggleLabel = insightExpanded ? 'Hide suggestions' : 'Show suggestions';
+  return `
+    <div class="insight-banner${expandedCls}">
+      <div class="insight-head">
+        <div class="insight-head-text">
+          <div class="insight-title">
+            <span class="insight-icon" aria-hidden="true">⚠</span>
+            Tight on time — ${rec.totalShortHrs} hrs short overall
+          </div>
+          <div class="insight-sub">
+            ${rec.affectedTopicCount} topic${rec.affectedTopicCount === 1 ? '' : 's'} won't fit before your exams (${rec.weeksToLastExam}-week run-up).
+          </div>
+        </div>
+        <button class="insight-toggle"
+                onclick="toggleInsight(this)"
+                aria-expanded="${insightExpanded ? 'true' : 'false'}">
+          <span class="insight-toggle-label">${toggleLabel}</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+
+      <div class="insight-pills">
+        ${topSubjects.map(s => `
+          <span class="insight-pill" style="--pill-color: ${s.color || 'var(--amber)'}">
+            <span class="insight-pill-dot" style="background: ${s.color || 'var(--amber)'}"></span>
+            ${escapeHtml(s.name)}
+            <em>${(s.min / 60).toFixed(1)} h</em>
+          </span>
+        `).join('')}
+        ${moreSubjects > 0 ? `<span class="insight-pill insight-pill-muted">+${moreSubjects} more</span>` : ''}
+      </div>
+
+      <div class="insight-details">
+        <div class="insight-section">
+          <div class="insight-section-title">Ways to close the gap</div>
+          <ul class="insight-suggestions">
+            ${rec.suggestions.map(s => `
+              <li>
+                <div class="suggestion-title">${escapeHtml(s.title)}</div>
+                <div class="suggestion-detail">${escapeHtml(s.detail)}</div>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="insight-section">
+          <div class="insight-section-title">Affected topics (${items.length})</div>
+          <ul class="insight-topics">
+            ${items.slice(0, 12).map(t => `
+              <li>
+                <span class="insight-topic-tag" style="--tag-color: ${t.subjectColor || 'var(--amber)'}">${escapeHtml(t.subjectName)}</span>
+                <span class="insight-topic-name">${escapeHtml(t.topicName)}</span>
+                <span class="insight-topic-short">${t.shortMin} min</span>
+              </li>
+            `).join('')}
+            ${items.length > 12 ? `<li class="insight-topic-more">…and ${items.length - 12} more</li>` : ''}
+          </ul>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleInsight(btn) {
+  insightExpanded = !insightExpanded;
+  const banner = btn.closest('.insight-banner');
+  banner.classList.toggle('expanded', insightExpanded);
+  btn.setAttribute('aria-expanded', insightExpanded ? 'true' : 'false');
+  const label = btn.querySelector('.insight-toggle-label');
+  if (label) label.textContent = insightExpanded ? 'Hide suggestions' : 'Show suggestions';
 }
 
 function computeAvailableSlots(day, avail, examsToday) {
@@ -1869,18 +2263,11 @@ function renderPlan() {
 
   const todayStr = isoDate(new Date());
 
-  // Warning banner
+  // Insight banner: structured shortfall summary + actionable suggestions
   let warningHtml = '';
-  if (state.lastUnderAllocated && state.lastUnderAllocated.length > 0 && !filterSubject) {
-    warningHtml = `
-      <div class="banner">
-        <strong>Heads up:</strong>&nbsp;Not enough free time before exams to cover everything fully.
-        Consider adding more study hours or trimming topics. Short by:
-        <ul style="margin: 6px 0 0 18px; font-size: 12px;">
-          ${state.lastUnderAllocated.slice(0, 5).map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-          ${state.lastUnderAllocated.length > 5 ? `<li>…and ${state.lastUnderAllocated.length - 5} more</li>` : ''}
-        </ul>
-      </div>`;
+  if (!filterSubject) {
+    const rec = computePlanRecommendations();
+    if (rec) warningHtml = renderInsightBanner(rec);
   }
 
   // Stats
