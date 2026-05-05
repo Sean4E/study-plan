@@ -4,7 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0e1a" />
+<meta name="description" content="Prioritised, printable, tickable study planner." />
 <title>Study Plan</title>
+<link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+<link rel="alternate icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Study Plan" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -146,16 +154,16 @@ button:active { transform: scale(0.98); }
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   margin-bottom: 24px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .header h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(28px, 5vw, 38px);
+  font-size: clamp(22px, 4.6vw, 34px);
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
@@ -168,14 +176,54 @@ button:active { transform: scale(0.98); }
 
 .header .sub {
   color: var(--text-muted);
-  font-size: 14px;
-  margin-top: 4px;
+  font-size: 13px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header .actions {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* Brand mark */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  flex: 1;
+}
+.brand-icon {
+  flex-shrink: 0;
+  border-radius: 10px;
+  filter: drop-shadow(0 2px 8px rgba(6, 212, 247, 0.25));
+}
+.brand-text { min-width: 0; }
+
+@media (max-width: 520px) {
+  .header .sub { display: none; }
+  .brand-icon { width: 34px; height: 34px; }
+  .brand { gap: 10px; }
+}
+
+/* Icon button (svg + label) */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+.icon-btn svg { flex-shrink: 0; }
+@media (max-width: 520px) {
+  .icon-btn { padding: 9px 11px; }
+  .icon-btn .btn-label { display: none; }
 }
 
 /* Tabs */
@@ -732,6 +780,58 @@ button:active { transform: scale(0.98); }
 .modal p { color: var(--text-muted); margin-bottom: 20px; font-size: 14px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
+.modal-lg { max-width: 520px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-header h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  font-size: 22px;
+}
+
+.settings-section { margin-bottom: 20px; }
+.settings-section:last-child { margin-bottom: 0; }
+.settings-section-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-text { min-width: 0; flex: 1; }
+.settings-row-title { font-weight: 600; font-size: 14px; }
+.settings-row-sub { color: var(--text-muted); font-size: 12px; margin-top: 2px; line-height: 1.4; }
+.settings-row > button,
+.settings-row > .import-label { flex-shrink: 0; }
+.import-label {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  cursor: pointer;
+  padding: 10px 14px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+.import-label:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+
 .help-text {
   font-size: 13px;
   color: var(--text-muted);
@@ -772,14 +872,22 @@ button:active { transform: scale(0.98); }
 <div class="app">
 
   <header class="header">
-    <div>
-      <h1>Study <span class="accent">Plan</span></h1>
-      <p class="sub" id="header-sub">Prioritised. Printable. Tickable.</p>
-    </div>
+    <a class="brand" href="./" aria-label="Study Plan home">
+      <img src="icons/favicon.svg" alt="" class="brand-icon" width="40" height="40" />
+      <div class="brand-text">
+        <h1>Study <span class="accent">Plan</span></h1>
+        <p class="sub" id="header-sub">Prioritised. Printable. Tickable.</p>
+      </div>
+    </a>
     <div class="actions">
-      <button class="btn-ghost" onclick="loadSample()" title="Load sample data">Sample</button>
-      <button class="btn-ghost btn-danger" onclick="confirmReset()" title="Clear all data">Reset</button>
-      <button class="btn-primary" onclick="window.print()" title="Print this plan">Print</button>
+      <button class="icon-btn" onclick="openSettings()" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="btn-label">Settings</span>
+      </button>
+      <button class="btn-primary icon-btn" onclick="window.print()" title="Print plan" aria-label="Print plan">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span class="btn-label">Print</span>
+      </button>
     </div>
   </header>
 
@@ -873,6 +981,58 @@ button:active { transform: scale(0.98); }
     <div id="plan-container"></div>
   </section>
 
+</div>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settings-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="btn-icon" onclick="closeSettings()" aria-label="Close settings">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-label">Data</div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Sample data</div>
+          <div class="settings-row-sub">Replace your plan with the demo subject and topics.</div>
+        </div>
+        <button onclick="loadSample(); closeSettings();">Load sample</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Export</div>
+          <div class="settings-row-sub">Download your plan as a JSON file.</div>
+        </div>
+        <button onclick="exportData()">Export JSON</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Import</div>
+          <div class="settings-row-sub">Replace the current plan with a previously exported file.</div>
+        </div>
+        <label class="import-label">
+          Import JSON
+          <input type="file" accept="application/json,.json" onchange="importData(event)" hidden />
+        </label>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Reset everything</div>
+          <div class="settings-row-sub">Wipe all subjects, topics, exams, availability and ticks.</div>
+        </div>
+        <button class="btn-danger" onclick="confirmReset()">Reset</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-label">App</div>
+      <p class="help-text" style="margin: 0;">
+        More options (themes, accent colours, full-screen calendar view) are coming in the next update.
+      </p>
+    </div>
+  </div>
 </div>
 
 <!-- Reset confirmation modal -->
@@ -1701,6 +1861,63 @@ function loadSample() {
 }
 
 // ============================================================
+// SETTINGS / IMPORT / EXPORT
+// ============================================================
+function openSettings() {
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function exportData() {
+  try {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `study-plan-${isoDate(new Date())}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) {
+    alert('Export failed: ' + e.message);
+  }
+}
+
+function importData(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!imported || !Array.isArray(imported.subjects) || !imported.weeklyAvail) {
+        throw new Error('File is not a Study Plan export.');
+      }
+      if (!confirm('Replace your current plan with this imported file?')) {
+        e.target.value = '';
+        return;
+      }
+      state = imported;
+      if (!state.completed) state.completed = {};
+      if (!state.generatedSessions) state.generatedSessions = [];
+      if (state.sessionLength == null) state.sessionLength = 45;
+      if (state.breakLength == null) state.breakLength = 15;
+      saveState();
+      renderAll();
+      closeSettings();
+    } catch (err) {
+      alert('Could not import: ' + err.message);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 function renderAll() {
@@ -1726,9 +1943,20 @@ document.addEventListener('change', (e) => {
   }
 });
 
-// Close modal on backdrop click
+// Close modals on backdrop click
 document.getElementById('reset-modal').addEventListener('click', (e) => {
   if (e.target.id === 'reset-modal') closeModal();
+});
+document.getElementById('settings-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'settings-modal') closeSettings();
+});
+
+// Close any open modal on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeSettings();
+  }
 });
 
 renderAll();
