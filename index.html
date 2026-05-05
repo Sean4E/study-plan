@@ -1039,6 +1039,319 @@ button:active { transform: scale(0.98); }
   margin-top: 8px;
 }
 
+/* View toggle (List / Week) */
+.view-toggle {
+  display: inline-flex;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 2px;
+  flex-shrink: 0;
+}
+.view-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.view-toggle-btn:hover { color: var(--text); }
+.view-toggle-btn.active {
+  background: var(--cyan-dim);
+  color: var(--cyan-soft);
+}
+
+/* Calendar (week view) */
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.cal-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 2px;
+}
+.cal-nav-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+}
+.cal-nav-btn:hover { background: var(--surface-hover); }
+.cal-today-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cal-week-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.cal-fs-btn { margin-left: auto; }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  --cal-hour-height: 60px;
+}
+.cal-time-col {
+  position: relative;
+  border-right: 1px solid var(--border);
+  background: var(--bg-2);
+}
+.cal-time-col-header {
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--bg-2);
+}
+.cal-hour-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 2px 4px 0;
+  letter-spacing: 0.02em;
+}
+.cal-days-wrap {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(110px, 1fr));
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.cal-day-col {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.cal-day-col:last-child { border-right: none; }
+.cal-day-col.is-today { background: rgba(6, 212, 247, 0.04); }
+.cal-day-col.is-weekend { background: rgba(255, 255, 255, 0.012); }
+.cal-day-col.is-today.is-weekend { background: rgba(6, 212, 247, 0.04); }
+
+.cal-day-header {
+  height: 56px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.cal-day-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.cal-day-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.1;
+}
+.cal-day-month {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.cal-day-col.is-today .cal-day-num { color: var(--cyan); }
+.cal-day-col.is-today .cal-day-name { color: var(--cyan-soft); }
+
+.cal-day-content {
+  position: relative;
+  flex: 1;
+  background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 100% var(--cal-hour-height);
+  background-repeat: repeat-y;
+}
+
+.cal-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--cyan);
+  z-index: 4;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(6, 212, 247, 0.25);
+}
+.cal-now-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+
+.cal-session {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border: 1px solid;
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.15s, transform 0.08s, box-shadow 0.15s;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cal-session:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.cal-session:active { transform: scale(0.98); }
+.cal-session:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 1px;
+}
+.cal-session.completed {
+  opacity: 0.42;
+}
+.cal-session.completed .cal-session-topic { text-decoration: line-through; }
+
+.cal-session-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1;
+}
+.cal-session-topic {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.cal-session-subject {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  margin-top: auto;
+}
+.cal-session-tick {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.cal-session.completed .cal-session-tick { display: inline-flex; }
+.cal-session-tick::after {
+  content: '';
+  width: 4px;
+  height: 7px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.cal-exam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px dashed var(--amber);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+  padding: 4px 6px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cal-empty {
+  grid-column: 1 / -1;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .cal-grid { --cal-hour-height: 52px; }
+  .cal-week-label { font-size: 13px; }
+  .cal-days-wrap { grid-template-columns: repeat(7, minmax(96px, 1fr)); }
+}
+
+/* Fullscreen — when plan-container goes fullscreen */
+#plan-container:fullscreen {
+  background: var(--bg);
+  padding: 16px;
+  overflow: auto;
+}
+#plan-container:-webkit-full-screen {
+  background: var(--bg);
+  padding: 16px;
+  overflow: auto;
+}
+:fullscreen .insight-banner,
+:fullscreen .stats { display: none; }
+
 /* Toast */
 .toast {
   position: fixed;
@@ -1184,6 +1497,10 @@ button:active { transform: scale(0.98); }
   <section class="panel" id="panel-plan">
 
     <div class="plan-controls">
+      <div class="view-toggle" role="tablist" aria-label="Plan view">
+        <button class="view-toggle-btn active" data-view="list" onclick="setPlanView('list')" role="tab" aria-selected="true">List</button>
+        <button class="view-toggle-btn" data-view="week" onclick="setPlanView('week')" role="tab" aria-selected="false">Week</button>
+      </div>
       <button class="btn-primary" onclick="regenerate()">⟲ Generate Plan</button>
       <button onclick="clearCompleted()">Reset Ticks</button>
       <select id="filter-subject" onchange="renderPlan()" style="width: auto; min-width: 160px;">
@@ -2218,6 +2535,221 @@ function regenerate() {
 }
 
 // ============================================================
+// CALENDAR (week view)
+// ============================================================
+let currentWeekOffset = 0;
+const CAL_HOUR_HEIGHT = 60;
+const CAL_HEADER_HEIGHT = 56;
+
+function setPlanView(view) {
+  state.planView = view;
+  saveState();
+  renderPlan();
+}
+
+function prevWeek() { currentWeekOffset -= 1; renderPlan(); }
+function nextWeek() { currentWeekOffset += 1; renderPlan(); }
+function goToThisWeek() { currentWeekOffset = 0; renderPlan(); }
+
+function getWeekStart(date, weekOffset = 0) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); // 0 = Sun
+  const diff = (day === 0 ? -6 : 1 - day) + weekOffset * 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function formatWeekRange(weekStart) {
+  const weekEnd = addDays(weekStart, 6);
+  const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
+  if (sameMonth) {
+    return `${weekStart.getDate()}–${weekEnd.getDate()} ${weekEnd.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+  }
+  return `${weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+}
+
+function isFullscreenSupported() {
+  return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+}
+function isInFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function toggleCalendarFullscreen() {
+  const el = document.getElementById('plan-container');
+  if (!isInFullscreen()) {
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      const p = req.call(el);
+      if (p && p.catch) p.catch(() => showToast('Fullscreen unavailable in this browser', 'info'));
+    } else {
+      showToast('Fullscreen unavailable in this browser', 'info');
+    }
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exit) exit.call(document);
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  // Re-render so the toolbar swaps the enter/exit icon
+  if ((state.planView || 'list') === 'week') renderPlan();
+});
+
+function renderCalSessionBlock(s, minH) {
+  const [sh, sm] = s.startTime.split(':').map(Number);
+  const top = (sh - minH) * CAL_HOUR_HEIGHT + (sm / 60) * CAL_HOUR_HEIGHT;
+  const height = Math.max(28, (s.duration / 60) * CAL_HOUR_HEIGHT - 2);
+  const completed = state.completed[s.id] ? ' completed' : '';
+  const color = s.subjectColor || '#06d4f7';
+  const ariaLabel = `${s.subjectName}: ${s.topicName}, ${s.startTime} to ${s.endTime}. ${state.completed[s.id] ? 'Completed' : 'Not completed'}. Activate to toggle.`;
+  return `
+    <div class="cal-session${completed}"
+         data-session-id="${s.id}"
+         style="top: ${top}px; height: ${height}px; background: ${color}1f; border-color: ${color}66; border-left-color: ${color};"
+         onclick="toggleComplete('${s.id}')"
+         onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleComplete('${s.id}'); }"
+         role="button"
+         tabindex="0"
+         aria-pressed="${state.completed[s.id] ? 'true' : 'false'}"
+         aria-label="${escapeHtml(ariaLabel)}"
+         title="${escapeHtml(s.subjectName)} – ${escapeHtml(s.topicName)} (${s.startTime}–${s.endTime})">
+      <div class="cal-session-tick" aria-hidden="true"></div>
+      <div class="cal-session-time">${s.startTime}</div>
+      <div class="cal-session-topic">${escapeHtml(s.topicName)}</div>
+      <div class="cal-session-subject" style="color: ${color}">${escapeHtml(s.subjectName)}</div>
+    </div>
+  `;
+}
+
+function renderCalExamMarker(e, minH) {
+  const subj = state.subjects.find(s => s.id === e.subjectId);
+  const subjName = subj ? subj.name : 'Exam';
+  const [h, m] = e.time.split(':').map(Number);
+  const top = (h - minH) * CAL_HOUR_HEIGHT + (m / 60) * CAL_HOUR_HEIGHT;
+  const height = Math.max(22, (e.duration / 60) * CAL_HOUR_HEIGHT - 2);
+  return `
+    <div class="cal-exam"
+         style="top: ${top}px; height: ${height}px;"
+         title="EXAM: ${escapeHtml(subjName)} ${e.time}">
+      EXAM • ${escapeHtml(subjName)}
+    </div>
+  `;
+}
+
+function renderCalNowLine(minH, maxH) {
+  const now = new Date();
+  const minutesSinceMin = now.getHours() * 60 + now.getMinutes() - minH * 60;
+  const totalAxisMin = (maxH - minH) * 60;
+  if (minutesSinceMin < 0 || minutesSinceMin > totalAxisMin) return '';
+  const top = (minutesSinceMin / 60) * CAL_HOUR_HEIGHT;
+  return `<div class="cal-now-line" style="top: ${top}px" aria-label="Current time"></div>`;
+}
+
+function renderWeekView(sessions) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = isoDate(today);
+  const weekStart = getWeekStart(new Date(), currentWeekOffset);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const dayStrs = days.map(d => isoDate(d));
+
+  const weekSessions = sessions.filter(s => dayStrs.includes(s.date));
+  const weekExams = state.exams.filter(e => dayStrs.includes(e.date));
+
+  // Time range — fit visible sessions + exams; otherwise default 08–22.
+  let minMin = 8 * 60, maxMin = 22 * 60;
+  const allItems = [
+    ...weekSessions.map(s => {
+      const [sh, sm] = s.startTime.split(':').map(Number);
+      const [eh, em] = s.endTime.split(':').map(Number);
+      return { startMin: sh * 60 + sm, endMin: eh * 60 + em };
+    }),
+    ...weekExams.map(e => {
+      const [h, m] = e.time.split(':').map(Number);
+      const startMin = h * 60 + m;
+      return { startMin, endMin: startMin + e.duration };
+    })
+  ];
+  if (allItems.length > 0) {
+    minMin = Math.min(...allItems.map(x => x.startMin));
+    maxMin = Math.max(...allItems.map(x => x.endMin));
+  }
+  let minH = Math.max(0, Math.floor(minMin / 60));
+  let maxH = Math.min(24, Math.ceil(maxMin / 60));
+  if (maxH - minH < 4) maxH = Math.min(24, minH + 4);
+
+  const totalHeight = (maxH - minH) * CAL_HOUR_HEIGHT;
+
+  const timeLabelsHtml = Array.from({ length: maxH - minH + 1 }, (_, i) => `
+    <div class="cal-hour-label" style="top: calc(${CAL_HEADER_HEIGHT}px + ${i * CAL_HOUR_HEIGHT}px)">${String(minH + i).padStart(2, '0')}:00</div>
+  `).join('');
+
+  const timeColHtml = `
+    <div class="cal-time-col">
+      <div class="cal-time-col-header"></div>
+      ${timeLabelsHtml}
+    </div>
+  `;
+
+  const dayColsHtml = days.map(d => {
+    const dStr = isoDate(d);
+    const dayName = d.toLocaleDateString(undefined, { weekday: 'short' });
+    const dayNum = d.getDate();
+    const month = d.toLocaleDateString(undefined, { month: 'short' });
+    const isToday = dStr === todayStr;
+    const wd = d.getDay();
+    const isWeekend = wd === 0 || wd === 6;
+    const showMonth = dayNum === 1 || d.getTime() === days[0].getTime();
+    const sessionsForDay = weekSessions.filter(s => s.date === dStr);
+    const examsForDay = weekExams.filter(e => e.date === dStr);
+
+    return `
+      <div class="cal-day-col${isToday ? ' is-today' : ''}${isWeekend ? ' is-weekend' : ''}">
+        <div class="cal-day-header">
+          <div class="cal-day-name">${dayName}</div>
+          <div class="cal-day-num">${dayNum}</div>
+          ${showMonth ? `<div class="cal-day-month">${month}</div>` : ''}
+        </div>
+        <div class="cal-day-content" style="height: ${totalHeight}px">
+          ${examsForDay.map(e => renderCalExamMarker(e, minH)).join('')}
+          ${sessionsForDay.map(s => renderCalSessionBlock(s, minH)).join('')}
+          ${isToday ? renderCalNowLine(minH, maxH) : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const fsAvailable = isFullscreenSupported();
+  const inFs = isInFullscreen();
+  const fsIcon = inFs
+    ? '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>'
+    : '<path d="M3 7V3h4"/><path d="M21 7V3h-4"/><path d="M3 17v4h4"/><path d="M21 17v4h-4"/>';
+  const fsLabel = inFs ? 'Exit fullscreen' : 'Enter fullscreen';
+
+  return `
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="prevWeek()" aria-label="Previous week">‹</button>
+        <button class="cal-today-btn" onclick="goToThisWeek()">Today</button>
+        <button class="cal-nav-btn" onclick="nextWeek()" aria-label="Next week">›</button>
+      </div>
+      <div class="cal-week-label">${formatWeekRange(weekStart)}</div>
+      ${fsAvailable ? `
+        <button class="btn-icon cal-fs-btn" onclick="toggleCalendarFullscreen()" aria-label="${fsLabel}" title="${fsLabel}">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${fsIcon}</svg>
+        </button>
+      ` : ''}
+    </div>
+    <div class="cal-grid">
+      ${timeColHtml}
+      <div class="cal-days-wrap">${dayColsHtml}</div>
+    </div>
+  `;
+}
+
+// ============================================================
 // RENDER: PLAN
 // ============================================================
 function renderPlanFilter() {
@@ -2229,9 +2761,19 @@ function renderPlanFilter() {
   sel.value = current;
 }
 
+function syncViewToggle() {
+  const view = state.planView || 'list';
+  document.querySelectorAll('.view-toggle-btn').forEach(b => {
+    const active = b.dataset.view === view;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+}
+
 function renderPlan() {
   const c = document.getElementById('plan-container');
   renderPlanFilter();
+  syncViewToggle();
 
   if (state.generatedSessions.length === 0) {
     c.innerHTML = `
@@ -2244,6 +2786,7 @@ function renderPlan() {
 
   const filterSubject = document.getElementById('filter-subject').value;
   const hideCompleted = document.getElementById('hide-completed').checked;
+  const view = state.planView || 'list';
 
   let sessions = state.generatedSessions;
   if (filterSubject) sessions = sessions.filter(s => s.subjectId === filterSubject);
@@ -2254,13 +2797,6 @@ function renderPlan() {
     return;
   }
 
-  // Group by day
-  const groups = {};
-  sessions.forEach(s => {
-    if (!groups[s.date]) groups[s.date] = [];
-    groups[s.date].push(s);
-  });
-
   const todayStr = isoDate(new Date());
 
   // Insight banner: structured shortfall summary + actionable suggestions
@@ -2270,28 +2806,21 @@ function renderPlan() {
     if (rec) warningHtml = renderInsightBanner(rec);
   }
 
-  // Stats
-  const total = state.generatedSessions.length;
-  const done = state.generatedSessions.filter(s => state.completed[s.id]).length;
-  const totalHrs = (state.generatedSessions.reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
-  const doneHrs = (state.generatedSessions.filter(s => state.completed[s.id]).reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
+  // Stats (always reflect the full plan, not the filter, so progress stays comparable)
+  const statsHtml = `<div class="stats" id="plan-stats">${buildStatsInnerHtml()}</div>`;
 
-  const statsHtml = `
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Sessions</div>
-        <div class="stat-value">${done}<span class="stat-unit">/ ${total}</span></div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Hours done</div>
-        <div class="stat-value">${doneHrs}<span class="stat-unit">/ ${totalHrs}</span></div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Progress</div>
-        <div class="stat-value">${total ? Math.round(done / total * 100) : 0}<span class="stat-unit">%</span></div>
-      </div>
-    </div>
-  `;
+  // Week view branches early
+  if (view === 'week') {
+    c.innerHTML = warningHtml + statsHtml + renderWeekView(sessions);
+    return;
+  }
+
+  // List view: group by day
+  const groups = {};
+  sessions.forEach(s => {
+    if (!groups[s.date]) groups[s.date] = [];
+    groups[s.date].push(s);
+  });
 
   const groupsHtml = Object.keys(groups).sort().map(date => {
     const items = groups[date];
@@ -2315,7 +2844,7 @@ function renderPlan() {
           <div class="day-group-meta">${items.length} sessions · ${Math.round(totalMin)} min${examLabel}</div>
         </div>
         ${items.map(s => `
-          <div class="session ${state.completed[s.id] ? 'completed' : ''}" style="border-left-color: ${s.subjectColor || 'var(--cyan)'}">
+          <div class="session ${state.completed[s.id] ? 'completed' : ''}" data-session-id="${s.id}" style="border-left-color: ${s.subjectColor || 'var(--cyan)'}">
             <input type="checkbox" class="session-check" ${state.completed[s.id] ? 'checked' : ''}
                    onchange="toggleComplete('${s.id}')" />
             <div class="session-body">
@@ -2335,14 +2864,62 @@ function renderPlan() {
   c.innerHTML = warningHtml + statsHtml + groupsHtml;
 }
 
+function buildStatsInnerHtml() {
+  const total = state.generatedSessions.length;
+  const done = state.generatedSessions.filter(s => state.completed[s.id]).length;
+  const totalHrs = (state.generatedSessions.reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
+  const doneHrs = (state.generatedSessions.filter(s => state.completed[s.id]).reduce((sum, s) => sum + s.duration, 0) / 60).toFixed(1);
+  return `
+    <div class="stat">
+      <div class="stat-label">Sessions</div>
+      <div class="stat-value">${done}<span class="stat-unit">/ ${total}</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Hours done</div>
+      <div class="stat-value">${doneHrs}<span class="stat-unit">/ ${totalHrs}</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Progress</div>
+      <div class="stat-value">${total ? Math.round(done / total * 100) : 0}<span class="stat-unit">%</span></div>
+    </div>
+  `;
+}
+
+function updatePlanStats() {
+  const el = document.getElementById('plan-stats');
+  if (el) el.innerHTML = buildStatsInnerHtml();
+}
+
+function updateSessionCompletedUi(id) {
+  const completed = !!state.completed[id];
+  document.querySelectorAll(`[data-session-id="${id}"]`).forEach(el => {
+    el.classList.toggle('completed', completed);
+    if (el.hasAttribute('aria-pressed')) {
+      el.setAttribute('aria-pressed', completed ? 'true' : 'false');
+    }
+    const cb = el.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = completed;
+  });
+}
+
 function toggleComplete(id) {
   if (state.completed[id]) delete state.completed[id];
   else state.completed[id] = true;
   saveState();
-  // Preserve scroll position while we re-render the list
-  const scroll = window.scrollY;
-  renderPlan();
-  window.scrollTo({ top: scroll, behavior: 'instant' });
+
+  const hideCompleted = document.getElementById('hide-completed').checked;
+  if (hideCompleted) {
+    // The newly completed item should disappear; full re-render is needed.
+    const scroll = window.scrollY;
+    renderPlan();
+    window.scrollTo({ top: scroll, behavior: 'instant' });
+    return;
+  }
+
+  // Otherwise update only the affected element + stats. This preserves
+  // both vertical page scroll and the calendar's horizontal scroll.
+  updateSessionCompletedUi(id);
+  updatePlanStats();
 }
 
 function clearCompleted() {
