@@ -883,7 +883,11 @@ button:active { transform: scale(0.98); }
   padding: 10px 12px;
   border-radius: 8px;
   border-left: 2px solid var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+.suggestion-content { flex: 1; min-width: 0; }
 .suggestion-title {
   font-weight: 600;
   font-size: 13px;
@@ -894,6 +898,28 @@ button:active { transform: scale(0.98); }
   font-size: 12px;
   color: var(--text-muted);
   line-height: 1.5;
+}
+.suggestion-apply {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: var(--amber);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.suggestion-apply:hover {
+  background: rgba(251, 191, 36, 0.28);
+  border-color: var(--amber);
+}
+.suggestion-apply:active { transform: scale(0.97); }
+@media (max-width: 520px) {
+  .insight-suggestions li { flex-direction: column; align-items: stretch; }
+  .suggestion-apply { align-self: flex-start; }
 }
 
 .insight-topics {
@@ -2503,7 +2529,9 @@ function computePlanRecommendations() {
 
   const suggestions = [];
 
-  // 1. Extra hours per week to close the gap.
+  // 1. Extra hours per week to close the gap. (No auto-apply — too vague:
+  // we don't know which days the user can spare or whether mornings vs
+  // evenings are realistic for them.)
   const extraPerWeekMin = totalShortMin / weeksToLastExam;
   suggestions.push({
     title: `Add ${(extraPerWeekMin / 60).toFixed(1)} hrs/week to your availability`,
@@ -2523,6 +2551,7 @@ function computePlanRecommendations() {
     const extraTotal = extraPerWeek * weeksToLastExam;
     const dayList = couldExtend.map(dk => DAY_NAMES[dk].slice(0, 3)).join(', ');
     suggestions.push({
+      id: 'extend-evenings',
       title: `Study one hour later on ${couldExtend.length} day${couldExtend.length === 1 ? '' : 's'}`,
       detail: `${dayList} currently end before 23:00. Adds ~${(extraPerWeek / 60).toFixed(0)} hrs/week (~${(extraTotal / 60).toFixed(0)} hrs over the run-up).`,
       impact: extraTotal
@@ -2540,6 +2569,7 @@ function computePlanRecommendations() {
     const extraPerWeek = couldStartEarlier.length * 60;
     const extraTotal = extraPerWeek * weeksToLastExam;
     suggestions.push({
+      id: 'start-earlier-weekend',
       title: `Start one hour earlier on the weekend`,
       detail: `Adds ~${(extraPerWeek / 60).toFixed(0)} hrs/week (~${(extraTotal / 60).toFixed(0)} hrs over the run-up).`,
       impact: extraTotal
@@ -2554,6 +2584,7 @@ function computePlanRecommendations() {
     const savedTotal = breakDelta * sessionsPerDay * 7 * weeksToLastExam;
     if (savedTotal >= 60) {
       suggestions.push({
+        id: 'shorter-breaks',
         title: `Shorten breaks: ${state.breakLength} → ${newBreak} min`,
         detail: `Frees roughly ${(savedTotal / 60).toFixed(0)} extra hours over the run-up by fitting more sessions into your existing windows.`,
         impact: savedTotal
@@ -2630,8 +2661,11 @@ function renderInsightBanner(rec) {
           <ul class="insight-suggestions">
             ${rec.suggestions.map(s => `
               <li>
-                <div class="suggestion-title">${escapeHtml(s.title)}</div>
-                <div class="suggestion-detail">${escapeHtml(s.detail)}</div>
+                <div class="suggestion-content">
+                  <div class="suggestion-title">${escapeHtml(s.title)}</div>
+                  <div class="suggestion-detail">${escapeHtml(s.detail)}</div>
+                </div>
+                ${s.id ? `<button class="suggestion-apply" onclick="applySuggestion('${s.id}')" title="Apply this change and re-generate the plan">Accept</button>` : ''}
               </li>
             `).join('')}
           </ul>
@@ -2662,6 +2696,63 @@ function toggleInsight(btn) {
   btn.setAttribute('aria-expanded', insightExpanded ? 'true' : 'false');
   const label = btn.querySelector('.insight-toggle-label');
   if (label) label.textContent = insightExpanded ? 'Hide suggestions' : 'Show suggestions';
+}
+
+// ---- Suggestion auto-apply ---------------------------------------------
+//
+// Each entry is a deterministic mutation of state. We re-generate the plan
+// after applying so the user sees the new shortfall immediately. Each
+// returns a short summary used in the success toast.
+const SUGGESTION_ACTIONS = {
+  'extend-evenings': () => {
+    let bumped = 0;
+    DAY_KEYS.forEach(dk => {
+      const day = state.weeklyAvail[dk];
+      if (!day || typeof day.studyEnd !== 'string') return;
+      const [h, m] = day.studyEnd.split(':').map(Number);
+      if (h < 23) {
+        day.studyEnd = `${String(h + 1).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
+        bumped += 1;
+      }
+    });
+    return bumped > 0
+      ? `Extended ${bumped} day${bumped === 1 ? '' : 's'} by 1 hour`
+      : 'No days needed extending';
+  },
+  'start-earlier-weekend': () => {
+    let bumped = 0;
+    ['sat', 'sun'].forEach(dk => {
+      const day = state.weeklyAvail[dk];
+      if (!day || typeof day.studyStart !== 'string') return;
+      const [h, m] = day.studyStart.split(':').map(Number);
+      if (h > 6) {
+        day.studyStart = `${String(h - 1).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
+        bumped += 1;
+      }
+    });
+    return bumped > 0
+      ? `Weekend now starts 1 hour earlier (${bumped} day${bumped === 1 ? '' : 's'})`
+      : 'Weekend already starts early';
+  },
+  'shorter-breaks': () => {
+    const before = state.breakLength;
+    state.breakLength = Math.max(5, state.breakLength - 5);
+    return `Breaks shortened ${before} → ${state.breakLength} min`;
+  }
+};
+
+function applySuggestion(id) {
+  const action = SUGGESTION_ACTIONS[id];
+  if (!action) return;
+  const summary = action();
+  // Re-run scheduler with new params so the user sees the impact straight away.
+  state.generatedSessions = generateSchedule();
+  state.lastGenerated = new Date().toISOString();
+  saveState();
+  // Re-render everything that could have changed (Schedule tab inputs,
+  // session-length / break-length number, plan view, badges).
+  renderAll();
+  showToast(summary + ' — plan re-generated.', 'success', 3500);
 }
 
 function computeAvailableSlots(day, avail, examsToday) {
