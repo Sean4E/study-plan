@@ -938,7 +938,7 @@ button:active { transform: scale(0.98); }
   padding-left: 0;
 }
 
-/* Subject color dots */
+/* Subject colour dot — non-interactive (kept for any legacy markup) */
 .subject-dot {
   display: inline-block;
   width: 10px;
@@ -946,6 +946,82 @@ button:active { transform: scale(0.98); }
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+/* Subject colour picker — clickable swatch on each subject card */
+.subject-color-btn {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--border-strong);
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.1s, border-color 0.15s;
+}
+.subject-color-btn:hover { transform: scale(1.18); border-color: var(--text); }
+.subject-color-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.color-picker {
+  background: var(--bg-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 150;
+}
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--bg-2);
+}
+
+/* Theme accent picker (in Settings) */
+.theme-picker {
+  display: inline-flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.theme-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s;
+}
+.theme-swatch:hover { transform: scale(1.12); }
+.theme-swatch.active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--bg-2);
+}
+
+/* Per-subject "no exam scheduled" hint */
+.subject-warning {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-left: 2px solid var(--amber);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.45;
+}
+.subject-warning strong { color: var(--amber); font-weight: 600; }
 
 /* Modal-ish backdrop */
 .modal-backdrop {
@@ -1560,10 +1636,31 @@ button:active { transform: scale(0.98); }
     </div>
 
     <div class="settings-section">
-      <div class="settings-section-label">App</div>
-      <p class="help-text" style="margin: 0;">
-        More options (themes, accent colours, full-screen calendar view) are coming in the next update.
-      </p>
+      <div class="settings-section-label">Appearance</div>
+
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Accent colour</div>
+          <div class="settings-row-sub">Used for highlights, primary buttons, and the active state.</div>
+        </div>
+        <div class="theme-picker" id="theme-picker">
+          <button class="theme-swatch" data-accent="cyan"   style="background: #06d4f7" onclick="setAccent('cyan')"   aria-label="Cyan"></button>
+          <button class="theme-swatch" data-accent="purple" style="background: #a78bfa" onclick="setAccent('purple')" aria-label="Purple"></button>
+          <button class="theme-swatch" data-accent="green"  style="background: #34d399" onclick="setAccent('green')"  aria-label="Green"></button>
+          <button class="theme-swatch" data-accent="amber"  style="background: #fbbf24" onclick="setAccent('amber')"  aria-label="Amber"></button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <div class="settings-row-title">Default plan view</div>
+          <div class="settings-row-sub">Which view to use when you open the Plan tab.</div>
+        </div>
+        <div class="view-toggle">
+          <button class="view-toggle-btn" data-default-view="list" onclick="setPlanView('list')">List</button>
+          <button class="view-toggle-btn" data-default-view="week" onclick="setPlanView('week')">Week</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1621,7 +1718,9 @@ function createBlankState() {
     generatedSessions: [],
     sessionLength: 45,
     breakLength: 15,
-    lastGenerated: null
+    lastGenerated: null,
+    planView: 'list',
+    accent: 'cyan'
   };
 }
 
@@ -1767,10 +1866,74 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw);
-    // Validate basics
+    // Validate basics — anything more granular is handled by normalizeState.
     if (!s.subjects || !s.weeklyAvail) return null;
-    return s;
+    return normalizeState(s);
   } catch (e) { return null; }
+}
+
+// Defensive shape repair so old saves and partial states can't crash the UI.
+function normalizeState(s) {
+  if (!s) return s;
+  if (!Array.isArray(s.subjects)) s.subjects = [];
+  if (!Array.isArray(s.exams)) s.exams = [];
+  if (!s.weeklyAvail || typeof s.weeklyAvail !== 'object') s.weeklyAvail = defaultAvailability();
+  DAY_KEYS.forEach(dk => {
+    const day = s.weeklyAvail[dk];
+    if (!day) {
+      s.weeklyAvail[dk] = { studyStart: '16:00', studyEnd: '22:00', blocked: [] };
+    } else {
+      if (typeof day.studyStart !== 'string') day.studyStart = '16:00';
+      if (typeof day.studyEnd !== 'string') day.studyEnd = '22:00';
+      if (!Array.isArray(day.blocked)) day.blocked = [];
+      day.blocked.forEach(b => {
+        if (!b.id) b.id = uid();
+        if (typeof b.start !== 'string') b.start = '18:00';
+        if (typeof b.end !== 'string') b.end = '19:00';
+        if (typeof b.label !== 'string') b.label = '';
+      });
+    }
+  });
+  if (!s.completed || typeof s.completed !== 'object') s.completed = {};
+  if (!Array.isArray(s.generatedSessions)) s.generatedSessions = [];
+  if (typeof s.sessionLength !== 'number') s.sessionLength = 45;
+  if (typeof s.breakLength !== 'number') s.breakLength = 15;
+  if (s.planView !== 'week') s.planView = 'list';
+  if (typeof s.accent !== 'string') s.accent = 'cyan';
+  s.subjects.forEach((subj, i) => {
+    if (!subj.id) subj.id = uid();
+    if (typeof subj.name !== 'string') subj.name = 'Subject';
+    if (!subj.color) subj.color = SUBJECT_COLORS[i % SUBJECT_COLORS.length];
+    if (!Array.isArray(subj.topics)) subj.topics = [];
+    subj.topics.forEach(t => {
+      if (!t.id) t.id = uid();
+      if (typeof t.name !== 'string') t.name = '';
+      if (typeof t.workload !== 'number' || t.workload < 1 || t.workload > 3) t.workload = 2;
+      if (typeof t.grade !== 'number' || t.grade < 0 || t.grade > 10) t.grade = 5;
+    });
+  });
+  s.exams.forEach(e => {
+    if (!e.id) e.id = uid();
+    if (typeof e.date !== 'string') e.date = isoDate(addDays(new Date(), 14));
+    if (typeof e.time !== 'string') e.time = '09:00';
+    if (typeof e.duration !== 'number') e.duration = 120;
+  });
+  return s;
+}
+
+// Drop generated sessions that reference subjects/topics no longer in state,
+// plus any orphaned `completed` entries. Run after destructive edits.
+function pruneStaleSessions() {
+  const subjectIds = new Set(state.subjects.map(s => s.id));
+  const topicIds = new Set();
+  state.subjects.forEach(s => s.topics.forEach(t => topicIds.add(t.id)));
+  state.generatedSessions = (state.generatedSessions || []).filter(sess =>
+    subjectIds.has(sess.subjectId) && topicIds.has(sess.topicId)
+  );
+  const sessionIds = new Set(state.generatedSessions.map(s => s.id));
+  Object.keys(state.completed || {}).forEach(id => {
+    if (!sessionIds.has(id)) delete state.completed[id];
+  });
 }
 
 let toastTimer = null;
@@ -1897,15 +2060,21 @@ function renderSubjects() {
     return;
   }
 
-  container.innerHTML = state.subjects.map(subj => `
+  container.innerHTML = state.subjects.map(subj => {
+    const hasExam = state.exams.some(e => e.subjectId === subj.id);
+    return `
     <div class="card subject-card" data-subject="${subj.id}">
       <div class="card-header">
         <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-          <span class="subject-dot" style="background: ${subj.color}"></span>
+          <button class="subject-color-btn"
+                  style="background: ${subj.color}"
+                  onclick="event.stopPropagation(); openColorPicker('${subj.id}', this)"
+                  aria-label="Change colour for ${escapeHtml(subj.name)}"
+                  title="Change colour"></button>
           <input class="subject-name-input" value="${escapeHtml(subj.name)}"
                  onchange="renameSubject('${subj.id}', this.value)" />
         </div>
-        <button class="btn-icon btn-danger" onclick="deleteSubject('${subj.id}')" title="Delete subject">✕</button>
+        <button class="btn-icon btn-danger" onclick="deleteSubject('${subj.id}')" title="Delete subject" aria-label="Delete subject">✕</button>
       </div>
 
       <div class="topics-list">
@@ -1914,8 +2083,15 @@ function renderSubjects() {
       </div>
 
       <button onclick="addTopic('${subj.id}')" style="margin-top: 12px; width: 100%;">+ Add topic</button>
+
+      ${hasExam ? '' : `
+        <div class="subject-warning" role="note">
+          <strong>No exam scheduled.</strong> Add one in the Availability tab — without it, this subject's topics won't appear in the plan.
+        </div>
+      `}
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function renderTopicRow(subjectId, t) {
@@ -1965,6 +2141,7 @@ function deleteSubject(id) {
   if (!confirm('Delete this subject and all its topics?')) return;
   state.subjects = state.subjects.filter(s => s.id !== id);
   state.exams = state.exams.filter(e => e.subjectId !== id);
+  pruneStaleSessions();
   saveState();
   renderAll();
 }
@@ -2003,10 +2180,12 @@ function deleteTopic(subjectId, topicId) {
   const s = state.subjects.find(s => s.id === subjectId);
   if (!s) return;
   s.topics = s.topics.filter(t => t.id !== topicId);
+  pruneStaleSessions();
   saveState();
   renderSubjects();
   renderStats();
   renderBadges();
+  renderPlan();
 }
 
 // ============================================================
@@ -2544,6 +2723,7 @@ function setPlanView(view) {
   state.planView = view;
   saveState();
   renderPlan();
+  syncSettingsPickers();
 }
 
 function prevWeek() { currentWeekOffset -= 1; renderPlan(); }
@@ -2964,11 +3144,112 @@ function loadSample() {
 // ============================================================
 // SETTINGS / IMPORT / EXPORT
 // ============================================================
+const ACCENTS = {
+  cyan:   { main: '#06d4f7', soft: '#67e8f9', dim: 'rgba(6, 212, 247, 0.14)' },
+  purple: { main: '#a78bfa', soft: '#c4b5fd', dim: 'rgba(167, 139, 250, 0.14)' },
+  green:  { main: '#34d399', soft: '#6ee7b7', dim: 'rgba(52, 211, 153, 0.14)' },
+  amber:  { main: '#fbbf24', soft: '#fcd34d', dim: 'rgba(251, 191, 36, 0.14)' }
+};
+
+// Apply the chosen accent by overriding the cyan-family CSS vars. The
+// var names stay as --cyan/--cyan-soft/--cyan-dim for compatibility with
+// existing rules; semantically they represent "the accent".
+function applyAccent() {
+  const a = ACCENTS[state.accent] || ACCENTS.cyan;
+  const root = document.documentElement;
+  root.style.setProperty('--cyan', a.main);
+  root.style.setProperty('--cyan-soft', a.soft);
+  root.style.setProperty('--cyan-dim', a.dim);
+}
+
+function setAccent(name) {
+  if (!ACCENTS[name]) return;
+  state.accent = name;
+  saveState();
+  applyAccent();
+  syncSettingsPickers();
+}
+
 function openSettings() {
   document.getElementById('settings-modal').classList.add('open');
+  syncSettingsPickers();
 }
 function closeSettings() {
   document.getElementById('settings-modal').classList.remove('open');
+}
+
+function syncSettingsPickers() {
+  const accent = state.accent || 'cyan';
+  document.querySelectorAll('.theme-swatch').forEach(b => {
+    b.classList.toggle('active', b.dataset.accent === accent);
+  });
+  const view = state.planView || 'list';
+  document.querySelectorAll('[data-default-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.defaultView === view);
+  });
+}
+
+// Subject colour picker — popover anchored to the subject's colour dot.
+let openPickerCleanup = null;
+
+function openColorPicker(subjectId, anchor) {
+  closeColorPicker();
+  const subj = state.subjects.find(s => s.id === subjectId);
+  if (!subj) return;
+
+  const picker = document.createElement('div');
+  picker.className = 'color-picker';
+  picker.setAttribute('role', 'menu');
+  picker.innerHTML = SUBJECT_COLORS.map(c => `
+    <button class="color-swatch ${c === subj.color ? 'active' : ''}"
+            style="background: ${c}"
+            onclick="setSubjectColor('${subjectId}', '${c}')"
+            aria-label="${c}"></button>
+  `).join('');
+
+  document.body.appendChild(picker);
+
+  // Position relative to the anchor; clamp to viewport.
+  const rect = anchor.getBoundingClientRect();
+  const pickerRect = picker.getBoundingClientRect();
+  let left = Math.max(8, rect.left);
+  if (left + pickerRect.width > window.innerWidth - 8) {
+    left = window.innerWidth - pickerRect.width - 8;
+  }
+  let top = rect.bottom + 8;
+  if (top + pickerRect.height > window.innerHeight - 8) {
+    top = Math.max(8, rect.top - pickerRect.height - 8);
+  }
+  picker.style.position = 'fixed';
+  picker.style.left = left + 'px';
+  picker.style.top = top + 'px';
+
+  const handler = (e) => {
+    if (!picker.contains(e.target) && !anchor.contains(e.target)) {
+      closeColorPicker();
+    }
+  };
+  // Defer to next tick so the click that opened the picker doesn't close it.
+  setTimeout(() => document.addEventListener('click', handler), 0);
+  openPickerCleanup = () => document.removeEventListener('click', handler);
+}
+
+function closeColorPicker() {
+  document.querySelectorAll('.color-picker').forEach(p => p.remove());
+  if (openPickerCleanup) { openPickerCleanup(); openPickerCleanup = null; }
+}
+
+function setSubjectColor(subjectId, color) {
+  const subj = state.subjects.find(s => s.id === subjectId);
+  if (!subj) return;
+  subj.color = color;
+  // Keep already-generated sessions visually consistent with the new colour.
+  state.generatedSessions.forEach(s => {
+    if (s.subjectId === subjectId) s.subjectColor = color;
+  });
+  saveState();
+  closeColorPicker();
+  renderAll();
 }
 
 function exportData() {
@@ -3001,11 +3282,7 @@ function importData(e) {
         e.target.value = '';
         return;
       }
-      state = imported;
-      if (!state.completed) state.completed = {};
-      if (!state.generatedSessions) state.generatedSessions = [];
-      if (state.sessionLength == null) state.sessionLength = 45;
-      if (state.breakLength == null) state.breakLength = 15;
+      state = normalizeState(imported);
       saveState();
       renderAll();
       closeSettings();
@@ -3022,12 +3299,14 @@ function importData(e) {
 // INIT
 // ============================================================
 function renderAll() {
+  applyAccent();
   renderStats();
   renderSubjects();
   renderAvailability();
   renderExams();
   renderBadges();
   renderPlan();
+  syncSettingsPickers();
   document.getElementById('session-length').value = state.sessionLength;
   document.getElementById('break-length').value = state.breakLength;
 }
@@ -3052,11 +3331,12 @@ document.getElementById('settings-modal').addEventListener('click', (e) => {
   if (e.target.id === 'settings-modal') closeSettings();
 });
 
-// Close any open modal on Escape
+// Close any open modal / popover on Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeModal();
     closeSettings();
+    closeColorPicker();
   }
 });
 
