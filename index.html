@@ -2716,8 +2716,21 @@ function regenerate() {
 // CALENDAR (week view)
 // ============================================================
 let currentWeekOffset = 0;
-const CAL_HOUR_HEIGHT = 60;
 const CAL_HEADER_HEIGHT = 56;
+
+// Hour height is dynamic: a comfortable default for normal viewing,
+// and a fit-to-viewport calc when fullscreen so the grid actually fills
+// the screen instead of leaving a tall void below.
+function calcCalHourHeight(hoursVisible) {
+  if (!hoursVisible || hoursVisible <= 0) return 80;
+  if (isInFullscreen()) {
+    const overhead = CAL_HEADER_HEIGHT + 50 + 32; // day header + toolbar + padding
+    const avail = window.innerHeight - overhead;
+    const hh = Math.floor(avail / hoursVisible);
+    return Math.max(72, Math.min(140, hh));
+  }
+  return 80;
+}
 
 function setPlanView(view) {
   state.planView = view;
@@ -2771,15 +2784,28 @@ function toggleCalendarFullscreen() {
   }
 }
 
-document.addEventListener('fullscreenchange', () => {
-  // Re-render so the toolbar swaps the enter/exit icon
+function onFullscreenChange() {
+  // Re-render so the toolbar swaps the enter/exit icon AND the grid
+  // recomputes hour-height for the new viewport size.
   if ((state.planView || 'list') === 'week') renderPlan();
+}
+document.addEventListener('fullscreenchange', onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+// Throttled resize re-render — only meaningful when a fullscreen calendar
+// is mounted, since that's the only mode that scales to viewport.
+let calResizeTimer = null;
+window.addEventListener('resize', () => {
+  if ((state.planView || 'list') !== 'week') return;
+  if (!isInFullscreen()) return;
+  clearTimeout(calResizeTimer);
+  calResizeTimer = setTimeout(renderPlan, 150);
 });
 
-function renderCalSessionBlock(s, minH) {
+function renderCalSessionBlock(s, minH, hourHeight) {
   const [sh, sm] = s.startTime.split(':').map(Number);
-  const top = (sh - minH) * CAL_HOUR_HEIGHT + (sm / 60) * CAL_HOUR_HEIGHT;
-  const height = Math.max(28, (s.duration / 60) * CAL_HOUR_HEIGHT - 2);
+  const top = (sh - minH) * hourHeight + (sm / 60) * hourHeight;
+  const height = Math.max(32, (s.duration / 60) * hourHeight - 2);
   const completed = state.completed[s.id] ? ' completed' : '';
   const color = s.subjectColor || '#06d4f7';
   const ariaLabel = `${s.subjectName}: ${s.topicName}, ${s.startTime} to ${s.endTime}. ${state.completed[s.id] ? 'Completed' : 'Not completed'}. Activate to toggle.`;
@@ -2802,12 +2828,12 @@ function renderCalSessionBlock(s, minH) {
   `;
 }
 
-function renderCalExamMarker(e, minH) {
+function renderCalExamMarker(e, minH, hourHeight) {
   const subj = state.subjects.find(s => s.id === e.subjectId);
   const subjName = subj ? subj.name : 'Exam';
   const [h, m] = e.time.split(':').map(Number);
-  const top = (h - minH) * CAL_HOUR_HEIGHT + (m / 60) * CAL_HOUR_HEIGHT;
-  const height = Math.max(22, (e.duration / 60) * CAL_HOUR_HEIGHT - 2);
+  const top = (h - minH) * hourHeight + (m / 60) * hourHeight;
+  const height = Math.max(22, (e.duration / 60) * hourHeight - 2);
   return `
     <div class="cal-exam"
          style="top: ${top}px; height: ${height}px;"
@@ -2817,12 +2843,12 @@ function renderCalExamMarker(e, minH) {
   `;
 }
 
-function renderCalNowLine(minH, maxH) {
+function renderCalNowLine(minH, maxH, hourHeight) {
   const now = new Date();
   const minutesSinceMin = now.getHours() * 60 + now.getMinutes() - minH * 60;
   const totalAxisMin = (maxH - minH) * 60;
   if (minutesSinceMin < 0 || minutesSinceMin > totalAxisMin) return '';
-  const top = (minutesSinceMin / 60) * CAL_HOUR_HEIGHT;
+  const top = (minutesSinceMin / 60) * hourHeight;
   return `<div class="cal-now-line" style="top: ${top}px" aria-label="Current time"></div>`;
 }
 
@@ -2859,10 +2885,11 @@ function renderWeekView(sessions) {
   let maxH = Math.min(24, Math.ceil(maxMin / 60));
   if (maxH - minH < 4) maxH = Math.min(24, minH + 4);
 
-  const totalHeight = (maxH - minH) * CAL_HOUR_HEIGHT;
+  const HOUR_HEIGHT = calcCalHourHeight(maxH - minH);
+  const totalHeight = (maxH - minH) * HOUR_HEIGHT;
 
   const timeLabelsHtml = Array.from({ length: maxH - minH + 1 }, (_, i) => `
-    <div class="cal-hour-label" style="top: calc(${CAL_HEADER_HEIGHT}px + ${i * CAL_HOUR_HEIGHT}px)">${String(minH + i).padStart(2, '0')}:00</div>
+    <div class="cal-hour-label" style="top: calc(${CAL_HEADER_HEIGHT}px + ${i * HOUR_HEIGHT}px)">${String(minH + i).padStart(2, '0')}:00</div>
   `).join('');
 
   const timeColHtml = `
@@ -2892,9 +2919,9 @@ function renderWeekView(sessions) {
           ${showMonth ? `<div class="cal-day-month">${month}</div>` : ''}
         </div>
         <div class="cal-day-content" style="height: ${totalHeight}px">
-          ${examsForDay.map(e => renderCalExamMarker(e, minH)).join('')}
-          ${sessionsForDay.map(s => renderCalSessionBlock(s, minH)).join('')}
-          ${isToday ? renderCalNowLine(minH, maxH) : ''}
+          ${examsForDay.map(e => renderCalExamMarker(e, minH, HOUR_HEIGHT)).join('')}
+          ${sessionsForDay.map(s => renderCalSessionBlock(s, minH, HOUR_HEIGHT)).join('')}
+          ${isToday ? renderCalNowLine(minH, maxH, HOUR_HEIGHT) : ''}
         </div>
       </div>
     `;
@@ -2921,7 +2948,7 @@ function renderWeekView(sessions) {
         </button>
       ` : ''}
     </div>
-    <div class="cal-grid">
+    <div class="cal-grid" style="--cal-hour-height: ${HOUR_HEIGHT}px;">
       ${timeColHtml}
       <div class="cal-days-wrap">${dayColsHtml}</div>
     </div>
