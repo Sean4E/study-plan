@@ -1307,18 +1307,18 @@ button:active { transform: scale(0.98); }
   border: 1px solid;
   border-left-width: 3px;
   border-radius: 6px;
-  padding: 4px 6px;
+  padding: 6px 8px;
   cursor: pointer;
   overflow: hidden;
   transition: opacity 0.15s, transform 0.08s, box-shadow 0.15s;
   user-select: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 .cal-session:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.12);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 .cal-session:active { transform: scale(0.98); }
 .cal-session:focus-visible {
@@ -1326,35 +1326,47 @@ button:active { transform: scale(0.98); }
   outline-offset: 1px;
 }
 .cal-session.completed {
-  opacity: 0.42;
+  opacity: 0.45;
 }
 .cal-session.completed .cal-session-topic { text-decoration: line-through; }
 
-.cal-session-time {
+/* Topic gets the bulk of the block; wraps freely and clips with a soft
+   bottom fade so long names hint at truncation without a hard ellipsis */
+.cal-session-topic {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--text);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  word-break: break-word;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 12px), transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 12px), transparent 100%);
+}
+
+/* Meta footer: time on the left, subject on the right, single short row */
+.cal-session-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 10px;
+  line-height: 1.2;
   color: var(--text-muted);
-  line-height: 1;
 }
-.cal-session-topic {
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 1.25;
-  color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
+.cal-session-time { color: var(--text-muted); }
 .cal-session-subject {
-  font-family: var(--font-mono);
-  font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
-  margin-top: auto;
+  /* colour set inline to match the subject */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
 }
 .cal-session-tick {
   position: absolute;
@@ -2722,14 +2734,14 @@ const CAL_HEADER_HEIGHT = 56;
 // and a fit-to-viewport calc when fullscreen so the grid actually fills
 // the screen instead of leaving a tall void below.
 function calcCalHourHeight(hoursVisible) {
-  if (!hoursVisible || hoursVisible <= 0) return 80;
+  if (!hoursVisible || hoursVisible <= 0) return 100;
   if (isInFullscreen()) {
     const overhead = CAL_HEADER_HEIGHT + 50 + 32; // day header + toolbar + padding
     const avail = window.innerHeight - overhead;
     const hh = Math.floor(avail / hoursVisible);
-    return Math.max(72, Math.min(140, hh));
+    return Math.max(88, Math.min(160, hh));
   }
-  return 80;
+  return 100;
 }
 
 function setPlanView(view) {
@@ -2805,14 +2817,15 @@ window.addEventListener('resize', () => {
 function renderCalSessionBlock(s, minH, hourHeight) {
   const [sh, sm] = s.startTime.split(':').map(Number);
   const top = (sh - minH) * hourHeight + (sm / 60) * hourHeight;
-  const height = Math.max(32, (s.duration / 60) * hourHeight - 2);
+  // Block fills its exact duration so it aligns with the time slots.
+  const height = Math.max(32, (s.duration / 60) * hourHeight);
   const completed = state.completed[s.id] ? ' completed' : '';
   const color = s.subjectColor || '#06d4f7';
   const ariaLabel = `${s.subjectName}: ${s.topicName}, ${s.startTime} to ${s.endTime}. ${state.completed[s.id] ? 'Completed' : 'Not completed'}. Activate to toggle.`;
   return `
     <div class="cal-session${completed}"
          data-session-id="${s.id}"
-         style="top: ${top}px; height: ${height}px; background: ${color}1f; border-color: ${color}66; border-left-color: ${color};"
+         style="top: ${top}px; height: ${height}px; background: ${color}22; border-color: ${color}66; border-left-color: ${color};"
          onclick="toggleComplete('${s.id}')"
          onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleComplete('${s.id}'); }"
          role="button"
@@ -2821,9 +2834,11 @@ function renderCalSessionBlock(s, minH, hourHeight) {
          aria-label="${escapeHtml(ariaLabel)}"
          title="${escapeHtml(s.subjectName)} – ${escapeHtml(s.topicName)} (${s.startTime}–${s.endTime})">
       <div class="cal-session-tick" aria-hidden="true"></div>
-      <div class="cal-session-time">${s.startTime}</div>
       <div class="cal-session-topic">${escapeHtml(s.topicName)}</div>
-      <div class="cal-session-subject" style="color: ${color}">${escapeHtml(s.subjectName)}</div>
+      <div class="cal-session-meta">
+        <span class="cal-session-time">${s.startTime}</span>
+        <span class="cal-session-subject" style="color: ${color}">${escapeHtml(s.subjectName)}</span>
+      </div>
     </div>
   `;
 }
