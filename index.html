@@ -1153,8 +1153,6 @@ button:active { transform: scale(0.98); }
 }
 .cal-day-col {
   border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
 }
 .cal-day-col:last-child { border-right: none; }
 .cal-day-col.is-today { background: rgba(6, 212, 247, 0.04); }
@@ -1200,7 +1198,6 @@ button:active { transform: scale(0.98); }
 
 .cal-day-content {
   position: relative;
-  flex: 1;
   background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
   background-size: 100% var(--cal-hour-height);
   background-repeat: repeat-y;
@@ -1333,10 +1330,12 @@ button:active { transform: scale(0.98); }
 }
 
 @media (max-width: 600px) {
-  .cal-grid { --cal-hour-height: 52px; }
   .cal-week-label { font-size: 13px; }
   .cal-days-wrap { grid-template-columns: repeat(7, minmax(96px, 1fr)); }
 }
+
+/* Hide calendar border + radius in fullscreen so it fills the viewport cleanly */
+:fullscreen .cal-grid { border: none; border-radius: 0; }
 
 /* Fullscreen — when plan-container goes fullscreen */
 #plan-container:fullscreen {
